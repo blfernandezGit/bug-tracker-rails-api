@@ -37,6 +37,8 @@ group :development, :test do
   gem 'factory_bot_rails'
   # Faker for randomized data in factories
   gem 'faker'
+  # Database cleaner to avoid false negatives
+  gem 'database_cleaner'
 end
 
 group :development do
