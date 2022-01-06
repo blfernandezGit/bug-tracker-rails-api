@@ -39,6 +39,8 @@ group :development, :test do
   gem 'faker'
   # Database cleaner to avoid false negatives
   gem 'database_cleaner'
+  # For easier rspec testing
+  gem 'shoulda-matchers'
 end
 
 group :development do
