@@ -1,12 +1,10 @@
 class CreateTicketRelations < ActiveRecord::Migration[6.1]
   def change
-    create_table :ticket_relations do |t|
-      t.references :ticket, null: false, foreign_key: true
-      t.references :related_ticket_id, null: false
+    create_table :ticket_relations, id: :uuid do |t|
+      t.references :ticket, null: false, foreign_key: true, type: :uuid
+      t.references :related_ticket, null: false, foreign_key: { to_table: :tickets }, type: :uuid
 
       t.timestamps
     end
-
-    add_foreign_key :ticket_relations, :tickets, column: :related_ticket_id
   end
 end
