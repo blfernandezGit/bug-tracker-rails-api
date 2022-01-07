@@ -1,13 +1,25 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  # Association Tests
-  it { should have_many(:project_memberships)}
-  it { should have_many(:projects)}
-  it { should have_many(:author_tickets)}
-  it { should have_many(:assignee_tickets)}
-  it { should have_many(:comments)}
+  context 'Associations' do
+    it { is_expected.to have_many(:project_memberships)}
+    it { is_expected.to have_many(:projects).
+          through(:project_memberships)}
+    it { is_expected.to have_many(:author_tickets).
+          class_name('Ticket')}
+    it { is_expected.to have_many(:assignee_tickets).
+          class_name('Ticket')}
+    it { is_expected.to have_many(:comments)}
+  end
 
-  # Validation Tests
-  it { is_expected.to validate_presence_of(:first_name)}
+  context 'ActiveRecords' do
+    it { is_expected.to have_db_index(:username)}
+  end
+
+  context 'Validations' do
+    it { is_expected.to validate_presence_of(:first_name)}
+    it { is_expected.to validate_presence_of(:last_name)}
+    it { is_expected.to validate_presence_of(:username)}
+    it { is_expected.to validate_uniqueness_of(:username) }
+  end
 end
