@@ -5,4 +5,10 @@ class Project < ApplicationRecord
 
     validates :name, presence: true
     validates :code, presence: true, uniqueness: true
+
+    before_create :slugify
+
+    def slugify
+        self.code = name.parameterize #creates url safe version of the name
+    end 
 end
