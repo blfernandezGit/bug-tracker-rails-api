@@ -22,6 +22,6 @@ RSpec.describe Ticket, type: :model do
   context 'Validations' do
     it { is_expected.to validate_presence_of(:title)}
     it { is_expected.not_to validate_presence_of(:description)}
-    it { is_expected.to validate_inclusion_of(:status).in_array(%w['Open' 'For Fixing' 'For Testing' 'Closed' 'Cancelled']) }
+    it { is_expected.to validate_inclusion_of(:status).in_array(%w[Open ForFixing ForTesting Closed Cancelled]) }
   end
 end

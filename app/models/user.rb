@@ -2,8 +2,8 @@ class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable,
-         :confirmable
+         :recoverable, :rememberable, :validatable
+        #  :confirmable
 
   # User belongs to and has many projects
   has_many :project_memberships
@@ -13,4 +13,8 @@ class User < ApplicationRecord
   has_many :assignee_tickets, class_name: "Ticket", foreign_key: "assignee_id"
   # User has many comments
   has_many :comments
+
+  validates :first_name, presence: true
+  validates :last_name, presence: true
+  validates :username, presence: true, uniqueness: true
 end
