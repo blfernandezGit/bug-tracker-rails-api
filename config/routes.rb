@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
-  devise_for :users
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  namespace :api do
+    namespace :v1, defaults: { format: :json } do
+      resources :projects, param: :code, only: %w[index show] #use code-slug as primary parameter instead of id for projects routing
+    end
+  end
 end
