@@ -1,9 +1,10 @@
 FactoryBot.define do
   factory :ticket do
-    description { "MyText" }
-    resolution { "MyText" }
-    status { "MyString" }
-    project { nil }
-    user { nil }
+    title { "MyTitle" }
+    description { "MyDescription" }
+    resolution { "MyResolution" }
+    status { "Open" }
+    project
+    user
   end
 end
