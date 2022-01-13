@@ -51,6 +51,8 @@ group :development, :test do
   gem 'shoulda-matchers'
   # For rails debugging
   gem 'pry'
+  # Ruby best practices
+  gem 'rubocop'
 end
 
 group :development do
