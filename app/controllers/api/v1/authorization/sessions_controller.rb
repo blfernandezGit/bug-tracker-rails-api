@@ -12,6 +12,9 @@ class Api::V1::Overrides::SessionsController < Devise::SessionsController
       render json: { 
         status: "200", 
         email: @user.email,
+        first_name: @user.first_name,
+        last_name: @user.last_name,
+        username: @user.username,
         authToken: @token 
       }, status: :ok
     elsif !@user

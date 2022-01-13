@@ -16,6 +16,10 @@ class Api::V1::Overrides::RegistrationsController < Devise::RegistrationsControl
       response.set_header('Authorization', @token)
       render json: { 
         status: "200",
+        email: @user.email,
+        first_name: @user.first_name,
+        last_name: @user.last_name,
+        username: @user.username,
         authToken: @token 
       }, status: :ok
     else
