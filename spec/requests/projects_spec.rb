@@ -1,5 +1,7 @@
 require 'rails_helper'
 
+#TODO: how to handle validation errors (uniqueness)
+
 RSpec.describe 'Projects API Test', type: :request do
     before(:all) do
         @project = create(:project)
@@ -102,23 +104,25 @@ RSpec.describe 'Projects API Test', type: :request do
             }
 
             context 'valid attributes' do
+                before(:example) {
+                    patch api_v1_project_url(@project.code), params: new_attributes, headers: @headers
+                }
+
                 it "updates a project" do
-                    expect { 
-                        post api_v1_projects_url(@project), params: new_attributes, headers: @headers
-                    }.to change(@project, :name).to(new_attributes[:name])
-                    expect(@project.description).to eq(new_attributes[:description])
+                    expect(Project.find(@project.id).name).to eq(new_attributes[:name])
+                    expect(Project.find(@project.id).description).to eq(new_attributes[:description])
                     expect(response.status).to eq(200)
                 end
             end
 
             context 'invalid attributes' do
                 before(:example) {
-                    post api_v1_projects_url(@project), params: invalid_attributes, headers: @headers
+                    patch api_v1_project_url(@project.code), params: invalid_attributes, headers: @headers
                 }
 
                 it "throws an error" do
-                    expect(@project.name).to_not eq(new_attributes[:name])
-                    expect(@project.description).to_not eq(new_attributes[:description])
+                    expect(@project.name).to_not eq(invalid_attributes[:name])
+                    expect(@project.description).to_not eq(invalid_attributes[:description])
                     expect(response.body).to include('errors')
                     expect(response.status).to eq(422)
                 end
@@ -128,7 +132,7 @@ RSpec.describe 'Projects API Test', type: :request do
         describe 'Admin user deletes a project: DELETE /destroy' do
             it "deletes a project" do
                 expect { 
-                    destroy api_v1_projects_url(@project), headers: @headers
+                    delete api_v1_project_url(@project.code), headers: @headers
                 }.to change(Project.all, :count).by(-1)
                 expect(response.status).to eq(200)
             end
@@ -218,7 +222,7 @@ RSpec.describe 'Projects API Test', type: :request do
 
             context 'valid attributes' do
                 before(:example) {
-                    post api_v1_projects_url(@project), params: invalid_attributes, headers: @headers
+                    patch api_v1_project_url(@project.code), params: new_attributes, headers: @headers
                 }
 
                 it "is unauthorized" do
@@ -230,12 +234,12 @@ RSpec.describe 'Projects API Test', type: :request do
 
             context 'invalid attributes' do
                 before(:example) {
-                    post api_v1_projects_url(@project), params: invalid_attributes, headers: @headers
+                    patch api_v1_project_url(@project.code), params: invalid_attributes, headers: @headers
                 }
 
                 it "is unauthorized" do
-                    expect(@project.name).to_not eq(new_attributes[:name])
-                    expect(@project.description).to_not eq(new_attributes[:description])
+                    expect(@project.name).to_not eq(invalid_attributes[:name])
+                    expect(@project.description).to_not eq(invalid_attributes[:description])
                     expect(response.status).to eq(401)
                 end
             end
@@ -244,7 +248,7 @@ RSpec.describe 'Projects API Test', type: :request do
         describe 'Client tries to delete a project: DELETE /destroy' do
             it "is unauthorized" do
                 expect { 
-                    destroy api_v1_projects_url(@project), headers: @headers
+                    delete api_v1_project_url(@project.code), headers: @headers
                 }.to change(Project.all, :count).by(0)
                 expect(response.status).to eq(401)
             end
