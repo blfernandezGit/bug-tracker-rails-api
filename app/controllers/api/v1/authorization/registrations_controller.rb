@@ -20,6 +20,7 @@ class Api::V1::Authorization::RegistrationsController < Devise::RegistrationsCon
         first_name: @user.first_name,
         last_name: @user.last_name,
         username: @user.username,
+        is_admin: @user.is_admin,
         authToken: @token
       }, status: :ok
     else
@@ -30,7 +31,7 @@ class Api::V1::Authorization::RegistrationsController < Devise::RegistrationsCon
   private
 
   def sign_up_params
-    params.permit(:email, :password, :password_confirmation, :first_name, :last_name, :username)
+    params.permit(:email, :password, :password_confirmation, :first_name, :last_name, :username, :is_admin)
   end
 
   def unprocessable_entity(messages)
@@ -49,7 +50,7 @@ class Api::V1::Authorization::RegistrationsController < Devise::RegistrationsCon
 
   # If you have extra params to permit, append them to the sanitizer.
   def configure_sign_up_params
-    devise_parameter_sanitizer.permit(:sign_up, keys: %i[first_name last_name username])
+    devise_parameter_sanitizer.permit(:sign_up, keys: %i[first_name last_name username is_admin])
   end
 
   # If you have extra params to permit, append them to the sanitizer.
