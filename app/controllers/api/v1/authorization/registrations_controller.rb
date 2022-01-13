@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Api::V1::Overrides::RegistrationsController < Devise::RegistrationsController
+class Api::V1::Authorization::RegistrationsController < Devise::RegistrationsController
   before_action :configure_sign_up_params, only: [:create]
   # before_action :configure_account_update_params, only: [:update]
 
@@ -14,13 +14,13 @@ class Api::V1::Overrides::RegistrationsController < Devise::RegistrationsControl
       sign_up(resource_name, resource)
       @token = @user.generate_jwt
       response.set_header('Authorization', @token)
-      render json: { 
-        status: "200",
+      render json: {
+        status: '200',
         email: @user.email,
         first_name: @user.first_name,
         last_name: @user.last_name,
         username: @user.username,
-        authToken: @token 
+        authToken: @token
       }, status: :ok
     else
       unprocessable_entity(@user.errors.full_messages)
@@ -34,11 +34,11 @@ class Api::V1::Overrides::RegistrationsController < Devise::RegistrationsControl
   end
 
   def unprocessable_entity(messages)
-    render json: { 
-      status: "422", 
+    render json: {
+      status: '422',
       errors: [
         {
-          title: "Unprocessable Entity",
+          title: 'Unprocessable Entity',
           messages: messages
         }
       ]
@@ -49,7 +49,7 @@ class Api::V1::Overrides::RegistrationsController < Devise::RegistrationsControl
 
   # If you have extra params to permit, append them to the sanitizer.
   def configure_sign_up_params
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:first_name, :last_name, :username])
+    devise_parameter_sanitizer.permit(:sign_up, keys: %i[first_name last_name username])
   end
 
   # If you have extra params to permit, append them to the sanitizer.

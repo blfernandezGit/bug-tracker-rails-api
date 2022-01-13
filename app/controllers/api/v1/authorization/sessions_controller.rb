@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Api::V1::Overrides::SessionsController < Devise::SessionsController
+class Api::V1::Authorization::SessionsController < Devise::SessionsController
   before_action :configure_sign_in_params, only: [:create]
 
   # POST /resource/sign_in
@@ -9,18 +9,18 @@ class Api::V1::Overrides::SessionsController < Devise::SessionsController
     if @user && @user.valid_password?(sign_in_params[:password])
       @token = @user.generate_jwt
       response.set_header('Authorization', @token)
-      render json: { 
-        status: "200", 
+      render json: {
+        status: '200',
         email: @user.email,
         first_name: @user.first_name,
         last_name: @user.last_name,
         username: @user.username,
-        authToken: @token 
+        authToken: @token
       }, status: :ok
     elsif !@user
-      unprocessable_entity( "User is not registered." )
+      unprocessable_entity('User is not registered.')
     else
-      unprocessable_entity( "Password is invalid." )
+      unprocessable_entity('Password is invalid.')
     end
   end
 
@@ -36,12 +36,12 @@ class Api::V1::Overrides::SessionsController < Devise::SessionsController
   end
 
   def unprocessable_entity(messages)
-    render json: { 
-      status: "422", 
+    render json: {
+      status: '422',
       errors: [
         {
-          title: "Unprocessable Entity",
-          messages: [ messages ]
+          title: 'Unprocessable Entity',
+          messages: [messages]
         }
       ]
     }, status: :unprocessable_entity
