@@ -52,22 +52,43 @@ RSpec.describe 'Projects API Test', type: :request do
             end
         end
 
+        describe 'View a specific project: GET /show' do
+            before(:example) { 
+                get api_v1_project_url(@project.code), headers: @headers
+            }
+
+            it "renders a successful response" do
+                expect(response.status).to eq(200)
+            end
+
+            it "contains expected project attributes" do
+                json_response_data = JSON.parse(response.body)['data']
+                attributes = json_response_data['attributes']
+                expect(attributes.keys).to match_array(["code", "name", "description", "is_active"])
+            end
+
+            it "contains specific project" do
+                expect(response.body).to include(@project.name.to_s)
+            end
+        end
+
         describe 'Admin user creates a new project: POST /create' do
             context 'valid attributes' do
                 it "creates a new project" do
                     expect { 
-                        post api_v1_projects_url, params: { project: valid_attributes }
+                        post api_v1_projects_url, params: valid_attributes, headers: @headers
                     }.to change(Project.all, :count).by(1)
                     expect(response.status).to eq(200)
                 end
             end
 
             context 'invalid attributes' do
-                it "creates a new project" do
+                it "throws an error" do
                     expect { 
-                        post api_v1_projects_url, params: { project: invalid_attributes }
+                        post api_v1_projects_url, params: invalid_attributes, headers: @headers
                     }.to change(Project.all, :count).by(0)
-                    expect(response.status).to eq(200)
+                    expect(response.body).to include('errors')
+                    expect(response.status).to eq(401)
                 end
             end
         end
@@ -83,7 +104,7 @@ RSpec.describe 'Projects API Test', type: :request do
             context 'valid attributes' do
                 it "updates a project" do
                     expect { 
-                        post api_v1_projects_url(@project), params: { project: new_attributes }
+                        post api_v1_projects_url(@project), params: new_attributes, headers: @headers
                     }.to change(@project, :name).to(new_attributes[:name])
                     expect(@project.description).to eq(new_attributes[:description])
                     expect(response.status).to eq(200)
@@ -92,14 +113,14 @@ RSpec.describe 'Projects API Test', type: :request do
 
             context 'invalid attributes' do
                 before(:example) {
-                    post api_v1_projects_url(@project), params: { project: invalid_attributes }
+                    post api_v1_projects_url(@project), params: invalid_attributes, headers: @headers
                 }
 
                 it "throws an error" do
                     expect(@project.name).to_not eq(new_attributes[:name])
                     expect(@project.description).to_not eq(new_attributes[:description])
                     expect(response.body).to include('errors')
-                    expect(response.status).to eq(200)
+                    expect(response.status).to eq(401)
                 end
             end
         end
@@ -107,7 +128,7 @@ RSpec.describe 'Projects API Test', type: :request do
         describe 'Admin user deletes a project: DELETE /destroy' do
             it "deletes a project" do
                 expect { 
-                    destroy api_v1_projects_url(@project)
+                    destroy api_v1_projects_url(@project), headers: @headers
                 }.to change(Project.all, :count).by(-1)
                 expect(response.status).to eq(200)
             end
@@ -147,11 +168,31 @@ RSpec.describe 'Projects API Test', type: :request do
             end
         end
 
+        describe 'View a specific project: GET /show' do
+            before(:example) { 
+                get api_v1_project_url(@project.code), headers: @headers
+            }
+
+            it "renders a successful response" do
+                expect(response.status).to eq(200)
+            end
+
+            it "contains expected project attributes" do
+                json_response_data = JSON.parse(response.body)['data']
+                attributes = json_response_data['attributes']
+                expect(attributes.keys).to match_array(["code", "name", "description", "is_active"])
+            end
+
+            it "contains specific project" do
+                expect(response.body).to include(@project.name.to_s)
+            end
+        end
+
         describe 'Client tries to create a new project: POST /create' do
             context 'valid attributes' do
                 it "is unauthorized" do
                     expect { 
-                        post api_v1_projects_url, params: { project: valid_attributes }
+                        post api_v1_projects_url, params: valid_attributes, headers: @headers
                     }.to change(Project.all, :count).by(0)
                     expect(response.status).to eq(401)
                 end
@@ -160,7 +201,7 @@ RSpec.describe 'Projects API Test', type: :request do
             context 'invalid attributes' do
                 it "is unauthorized" do
                     expect { 
-                        post api_v1_projects_url, params: { project: invalid_attributes }
+                        post api_v1_projects_url, params: invalid_attributes, headers: @headers
                     }.to change(Project.all, :count).by(0)
                     expect(response.status).to eq(401)
                 end
@@ -177,7 +218,7 @@ RSpec.describe 'Projects API Test', type: :request do
 
             context 'valid attributes' do
                 before(:example) {
-                    post api_v1_projects_url(@project), params: { project: invalid_attributes }
+                    post api_v1_projects_url(@project), params: invalid_attributes, headers: @headers
                 }
 
                 it "is unauthorized" do
@@ -189,7 +230,7 @@ RSpec.describe 'Projects API Test', type: :request do
 
             context 'invalid attributes' do
                 before(:example) {
-                    post api_v1_projects_url(@project), params: { project: invalid_attributes }
+                    post api_v1_projects_url(@project), params: invalid_attributes, headers: @headers
                 }
 
                 it "is unauthorized" do
@@ -203,7 +244,7 @@ RSpec.describe 'Projects API Test', type: :request do
         describe 'Client tries to delete a project: DELETE /destroy' do
             it "is unauthorized" do
                 expect { 
-                    destroy api_v1_projects_url(@project)
+                    destroy api_v1_projects_url(@project), headers: @headers
                 }.to change(Project.all, :count).by(0)
                 expect(response.status).to eq(401)
             end
