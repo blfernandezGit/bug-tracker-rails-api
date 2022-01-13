@@ -49,6 +49,8 @@ group :development, :test do
   gem 'database_cleaner'
   # For easier rspec testing
   gem 'shoulda-matchers'
+  # For rails debugging
+  gem 'pry'
 end
 
 group :development do
