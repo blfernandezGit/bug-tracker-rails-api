@@ -194,7 +194,7 @@ RSpec.describe 'Projects API Test', type: :request do
                     expect { 
                         post api_v1_projects_url, params: valid_attributes, headers: @headers
                     }.to change(Project.all, :count).by(0)
-                    expect(response.status).to eq(422)
+                    expect(response.status).to eq(401)
                 end
             end
 
@@ -203,7 +203,7 @@ RSpec.describe 'Projects API Test', type: :request do
                     expect { 
                         post api_v1_projects_url, params: invalid_attributes, headers: @headers
                     }.to change(Project.all, :count).by(0)
-                    expect(response.status).to eq(422)
+                    expect(response.status).to eq(401)
                 end
             end
         end
@@ -224,7 +224,7 @@ RSpec.describe 'Projects API Test', type: :request do
                 it "is unauthorized" do
                     expect(@project.name).to_not eq(new_attributes[:name])
                     expect(@project.description).to_not eq(new_attributes[:description])
-                    expect(response.status).to eq(422)
+                    expect(response.status).to eq(401)
                 end
             end
 
@@ -236,7 +236,7 @@ RSpec.describe 'Projects API Test', type: :request do
                 it "is unauthorized" do
                     expect(@project.name).to_not eq(new_attributes[:name])
                     expect(@project.description).to_not eq(new_attributes[:description])
-                    expect(response.status).to eq(422)
+                    expect(response.status).to eq(401)
                 end
             end
         end
@@ -246,7 +246,7 @@ RSpec.describe 'Projects API Test', type: :request do
                 expect { 
                     destroy api_v1_projects_url(@project), headers: @headers
                 }.to change(Project.all, :count).by(0)
-                expect(response.status).to eq(422)
+                expect(response.status).to eq(401)
             end
         end
     end
