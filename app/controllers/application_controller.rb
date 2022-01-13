@@ -4,7 +4,7 @@ class ApplicationController < ActionController::API
     before_action :process_token
 
     # Override devise methods
-    def authenticate_user!(options = {})
+    def authenticate_api_v1_user!(options = {})
         head :unauthorized unless signed_in?
     end
 
@@ -20,11 +20,20 @@ class ApplicationController < ActionController::API
     def process_token
         if request.headers['Authorization'].present?
             begin
-                jwt_payload = JWT.decode(request.headers['Authorization'].split(' ')[1].remove('"'), Rails.application.secrets.secret_key_base).first
+                jwt_payload = JWT.decode(request.headers['Authorization'], Rails.application.secrets.secret_key_base).first
                 @current_user_id = jwt_payload['id']
             rescue JWT::ExpiredSignature, JWT::VerificationError, JWT::DecodeError
-                head :unauthorized
+                unauthorized
             end
         end
+    end
+
+    private
+
+    def unauthorized
+        render json: { 
+            status: "401", 
+            errors: {message:"You need to sign in or sign up before continuing." }
+        }, status: :unauthorized
     end
 end
