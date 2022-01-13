@@ -8,10 +8,10 @@ class Api::V1::Overrides::SessionsController < Devise::SessionsController
     @user = User.find_by_email(sign_in_params[:email])
     if @user && @user.valid_password?(sign_in_params[:password])
       @token = @user.generate_jwt
+      response.set_header('Authorization', @token)
       render json: { 
         status: "200", 
-        email: @user.email, 
-        userToken: @user.id, 
+        email: @user.email,
         authToken: @token 
       }, status: :ok
     elsif !@user
@@ -20,6 +20,11 @@ class Api::V1::Overrides::SessionsController < Devise::SessionsController
       unprocessable_entity( "Password is invalid." )
     end
   end
+
+  # DELETE /resource/sign_out
+  # def destroy
+  #   super
+  # end
 
   private
 
@@ -38,11 +43,6 @@ class Api::V1::Overrides::SessionsController < Devise::SessionsController
       ]
     }, status: :unprocessable_entity
   end
-
-  # DELETE /resource/sign_out
-  # def destroy
-  #   super
-  # end
 
   protected
 

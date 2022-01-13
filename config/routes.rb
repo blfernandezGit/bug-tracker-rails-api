@@ -4,9 +4,14 @@ Rails.application.routes.draw do
       resources :projects, param: :code, only: %w[index show] #use code-slug as primary parameter instead of id for projects routing
       devise_for :users,
       path: '',
+      path_names: {
+        sign_in: 'login',
+        sign_out: 'logout',
+        sign_up: 'signup'
+      },
       controllers: {
-        registrations: 'api/v1/overrides/registrations',
-        sessions: 'api/v1/overrides/sessions',
+        registrations: 'api/v1/authorization/registrations',
+        sessions: 'api/v1/authorization/sessions',
       }
     end
   end

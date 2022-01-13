@@ -13,9 +13,9 @@ class Api::V1::Overrides::RegistrationsController < Devise::RegistrationsControl
     if @user.save
       sign_up(resource_name, resource)
       @token = @user.generate_jwt
+      response.set_header('Authorization', @token)
       render json: { 
-        status: "200", 
-        userToken: @user.id, 
+        status: "200",
         authToken: @token 
       }, status: :ok
     else
