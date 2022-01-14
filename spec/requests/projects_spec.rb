@@ -1,10 +1,9 @@
 require 'rails_helper'
 
-#TODO: how to handle validation errors (uniqueness)
-
 RSpec.describe 'Projects API Test', type: :request do
     before(:all) do
         @project = create(:project)
+        
     end
 
     let(:valid_attributes) {
@@ -14,10 +13,18 @@ RSpec.describe 'Projects API Test', type: :request do
         }
     }
 
-    let(:invalid_attributes) {
+    let(:invalid_attributes_1) {
         {
             name: nil,
             description: 'ValidProjectDescription'
+        }
+    }
+
+    let(:invalid_attributes_2) {
+        {
+            name: @project.code,
+            description: 'ValidProjectDescription',
+            code: @project.code
         }
     }
     
@@ -56,9 +63,11 @@ RSpec.describe 'Projects API Test', type: :request do
 
         describe 'View a specific project: GET /show' do
             context "the project exists" do
+                
                 before(:example) { 
                     get api_v1_project_url(@project.code), headers: @headers
                 }
+                
 
                 it "renders a successful response" do
                     expect(response.status).to eq(200)
@@ -101,9 +110,17 @@ RSpec.describe 'Projects API Test', type: :request do
             end
 
             context 'invalid attributes' do
-                it "throws an error" do
+                it "throws an error when no name" do
                     expect { 
-                        post api_v1_projects_url, params: invalid_attributes, headers: @headers
+                        post api_v1_projects_url, params: invalid_attributes_1, headers: @headers
+                    }.to change(Project.all, :count).by(0)
+                    expect(response.body).to include('errors')
+                    expect(response.status).to eq(422)
+                end
+
+                it "throws an error when code is not unique" do
+                    expect { 
+                        post api_v1_projects_url, params: invalid_attributes_2, headers: @headers
                     }.to change(Project.all, :count).by(0)
                     expect(response.body).to include('errors')
                     expect(response.status).to eq(422)
@@ -133,12 +150,12 @@ RSpec.describe 'Projects API Test', type: :request do
 
             context 'invalid attributes' do
                 before(:example) {
-                    patch api_v1_project_url(@project.code), params: invalid_attributes, headers: @headers
+                    patch api_v1_project_url(@project.code), params: invalid_attributes_1, headers: @headers
                 }
 
                 it "throws an error" do
-                    expect(@project.name).to_not eq(invalid_attributes[:name])
-                    expect(@project.description).to_not eq(invalid_attributes[:description])
+                    expect(@project.name).to_not eq(invalid_attributes_1[:name])
+                    expect(@project.description).to_not eq(invalid_attributes_1[:description])
                     expect(response.body).to include('errors')
                     expect(response.status).to eq(422)
                 end
@@ -240,7 +257,7 @@ RSpec.describe 'Projects API Test', type: :request do
             context 'invalid attributes' do
                 it "is unauthorized" do
                     expect { 
-                        post api_v1_projects_url, params: invalid_attributes, headers: @headers
+                        post api_v1_projects_url, params: invalid_attributes_1, headers: @headers
                     }.to change(Project.all, :count).by(0)
                     expect(response.status).to eq(401)
                 end
@@ -269,12 +286,12 @@ RSpec.describe 'Projects API Test', type: :request do
 
             context 'invalid attributes' do
                 before(:example) {
-                    patch api_v1_project_url(@project.code), params: invalid_attributes, headers: @headers
+                    patch api_v1_project_url(@project.code), params: invalid_attributes_1, headers: @headers
                 }
 
                 it "is unauthorized" do
-                    expect(@project.name).to_not eq(invalid_attributes[:name])
-                    expect(@project.description).to_not eq(invalid_attributes[:description])
+                    expect(@project.name).to_not eq(invalid_attributes_1[:name])
+                    expect(@project.description).to_not eq(invalid_attributes_1[:description])
                     expect(response.status).to eq(401)
                 end
             end
