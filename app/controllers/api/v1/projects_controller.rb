@@ -1,6 +1,7 @@
 class Api::V1::ProjectsController < Api::V1::RootController
     before_action :authenticate_api_v1_admin!, only: [:create, :update, :destroy]
     before_action :set_project, only: [:update, :destroy]
+
   def index
     @projects = Project.all
     if @projects.count > 0
@@ -41,6 +42,8 @@ class Api::V1::ProjectsController < Api::V1::RootController
 
   def create
     @project = Project.new(project_params)
+
+    @project.code = @project.name.parameterize unless !@project.name # make url-friendly code from name
 
     if @project.save
         render json: {
