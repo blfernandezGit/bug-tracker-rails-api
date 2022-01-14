@@ -4,5 +4,5 @@ class ProjectSerializer
 
   has_many :project_memberships
   has_many :users, through: :project_memberships
-  # has_many :tickets
+  has_many :tickets
 end
