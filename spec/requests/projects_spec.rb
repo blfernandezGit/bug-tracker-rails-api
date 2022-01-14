@@ -67,6 +67,9 @@ RSpec.describe 'Projects API Test', type: :request do
                 json_response_data = JSON.parse(response.body)['data']
                 attributes = json_response_data['attributes']
                 expect(attributes.keys).to match_array(["code", "name", "description", "is_active"])
+                expect(response.body).to include('users')
+                expect(response.body).to include('project_memberships')
+                expect(response.body).to include('tickets')
             end
 
             it "contains specific project" do
@@ -165,6 +168,9 @@ RSpec.describe 'Projects API Test', type: :request do
                 json_response_data = JSON.parse(response.body)['data'][0]
                 attributes = json_response_data['attributes']
                 expect(attributes.keys).to match_array(["code", "name", "description", "is_active"])
+                expect(response.body).to include('users')
+                expect(response.body).to include('project_memberships')
+                expect(response.body).to include('tickets')
             end
 
             it "contains all projects" do
