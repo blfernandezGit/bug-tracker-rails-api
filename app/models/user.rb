@@ -16,7 +16,13 @@ class User < ApplicationRecord
 
   validates :first_name, presence: true
   validates :last_name, presence: true
-  validates :username, presence: true, uniqueness: true
+  validates :username, 
+    presence: true, 
+    uniqueness: true, 
+    format: { 
+      with: /\A[a-z0-9]+\Z/, 
+      message: 'must be alphanumeric with lowercase letters' 
+    }
 
   def generate_jwt
     JWT.encode({ id: id, exp: 1.day.from_now.to_i }, Rails.application.secrets.secret_key_base)
