@@ -44,7 +44,7 @@ RSpec.describe 'Projects API Test', type: :request do
             end
 
             it "contains expected project attributes" do
-                json_response_data = JSON.parse(response.body)['data'][0]
+                json_response_data = JSON.parse(response.body)['data']['data'][0]
                 attributes = json_response_data['attributes']
                 expect(attributes.keys).to match_array(["code", "name", "description", "is_active"])
             end
@@ -55,25 +55,38 @@ RSpec.describe 'Projects API Test', type: :request do
         end
 
         describe 'View a specific project: GET /show' do
-            before(:example) { 
-                get api_v1_project_url(@project.code), headers: @headers
-            }
+            context "the project exists" do
+                before(:example) { 
+                    get api_v1_project_url(@project.code), headers: @headers
+                }
 
-            it "renders a successful response" do
-                expect(response.status).to eq(200)
+                it "renders a successful response" do
+                    expect(response.status).to eq(200)
+                end
+
+                it "contains expected project attributes" do
+                    json_response_data = JSON.parse(response.body)['data']['data']
+                    attributes = json_response_data['attributes']
+                    expect(attributes.keys).to match_array(["code", "name", "description", "is_active"])
+                    expect(response.body).to include('users')
+                    expect(response.body).to include('project_memberships')
+                    expect(response.body).to include('tickets')
+                end
+
+                it "contains specific project" do
+                    expect(response.body).to include(@project.name.to_s)
+                end
             end
 
-            it "contains expected project attributes" do
-                json_response_data = JSON.parse(response.body)['data']
-                attributes = json_response_data['attributes']
-                expect(attributes.keys).to match_array(["code", "name", "description", "is_active"])
-                expect(response.body).to include('users')
-                expect(response.body).to include('project_memberships')
-                expect(response.body).to include('tickets')
-            end
+            context "the project does not exist" do
+                before(:example) { 
+                    get '/api/v1/projects/dne-code', headers: @headers
+                }
 
-            it "contains specific project" do
-                expect(response.body).to include(@project.name.to_s)
+                it 'throws an error' do
+                    expect(response.body).to include('errors')
+                    expect(response.status).to eq(422)
+                end
             end
         end
 
@@ -165,7 +178,7 @@ RSpec.describe 'Projects API Test', type: :request do
             end
 
             it "contains expected project attributes" do
-                json_response_data = JSON.parse(response.body)['data'][0]
+                json_response_data = JSON.parse(response.body)['data']['data'][0]
                 attributes = json_response_data['attributes']
                 expect(attributes.keys).to match_array(["code", "name", "description", "is_active"])
                 expect(response.body).to include('users')
@@ -179,22 +192,38 @@ RSpec.describe 'Projects API Test', type: :request do
         end
 
         describe 'View a specific project: GET /show' do
-            before(:example) { 
-                get api_v1_project_url(@project.code), headers: @headers
-            }
+            context "the project exists" do
+                before(:example) { 
+                    get api_v1_project_url(@project.code), headers: @headers
+                }
 
-            it "renders a successful response" do
-                expect(response.status).to eq(200)
+                it "renders a successful response" do
+                    expect(response.status).to eq(200)
+                end
+
+                it "contains expected project attributes" do
+                    json_response_data = JSON.parse(response.body)['data']['data']
+                    attributes = json_response_data['attributes']
+                    expect(attributes.keys).to match_array(["code", "name", "description", "is_active"])
+                    expect(response.body).to include('users')
+                    expect(response.body).to include('project_memberships')
+                    expect(response.body).to include('tickets')
+                end
+
+                it "contains specific project" do
+                    expect(response.body).to include(@project.name.to_s)
+                end
             end
 
-            it "contains expected project attributes" do
-                json_response_data = JSON.parse(response.body)['data']
-                attributes = json_response_data['attributes']
-                expect(attributes.keys).to match_array(["code", "name", "description", "is_active"])
-            end
+            context "the project does not exist" do
+                before(:example) { 
+                    get '/api/v1/projects/dne-code', headers: @headers
+                }
 
-            it "contains specific project" do
-                expect(response.body).to include(@project.name.to_s)
+                it 'throws an error' do
+                    expect(response.body).to include('errors')
+                    expect(response.status).to eq(422)
+                end
             end
         end
 
