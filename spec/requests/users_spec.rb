@@ -181,9 +181,9 @@ RSpec.describe 'Users API Test', type: :request do
                 end
 
                 it "throws an error when no last_name" do
-                    patch api_v1_user_url(@user2.username), params: invalid_attributes_2, headers: @headers
-                    expect(@user2.first_name).to_not eq(invalid_attributes_2[:first_name])
-                    expect(@user2.last_name).to_not eq(invalid_attributes_2[:last_name])
+                    patch api_v1_user_url(@user.username), params: invalid_attributes_2, headers: @headers
+                    expect(@user.first_name).to_not eq(invalid_attributes_2[:first_name])
+                    expect(@user.last_name).to_not eq(invalid_attributes_2[:last_name])
                     expect(response.body).to include('errors')
                     expect(response.status).to eq(422)
                 end
@@ -301,8 +301,8 @@ RSpec.describe 'Users API Test', type: :request do
                 }
 
                 it "is unauthorized" do
-                    expect(@user.name).to_not eq(new_attributes[:name])
-                    expect(@user.description).to_not eq(new_attributes[:description])
+                    expect(@user.first_name).to_not eq(new_attributes[:first_name])
+                    expect(@user.last_name).to_not eq(new_attributes[:last_name])
                     expect(response.status).to eq(401)
                 end
             end
