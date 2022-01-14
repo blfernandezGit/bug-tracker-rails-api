@@ -3,7 +3,9 @@ require 'rails_helper'
 RSpec.describe 'Projects API Test', type: :request do
     before(:all) do
         @project = create(:project)
-        
+        @project.update(code: @project.name.parameterize)
+        @project2 = create(:project)
+        @project2.update(code: @project2.name.parameterize)
     end
 
     let(:valid_attributes) {
@@ -66,6 +68,7 @@ RSpec.describe 'Projects API Test', type: :request do
                 
                 before(:example) { 
                     get api_v1_project_url(@project.code), headers: @headers
+                    
                 }
                 
 
@@ -149,13 +152,18 @@ RSpec.describe 'Projects API Test', type: :request do
             end
 
             context 'invalid attributes' do
-                before(:example) {
+                it "throws an error when no name" do
                     patch api_v1_project_url(@project.code), params: invalid_attributes_1, headers: @headers
-                }
-
-                it "throws an error" do
                     expect(@project.name).to_not eq(invalid_attributes_1[:name])
                     expect(@project.description).to_not eq(invalid_attributes_1[:description])
+                    expect(response.body).to include('errors')
+                    expect(response.status).to eq(422)
+                end
+
+                it "throws an error when code is not unique" do
+                    patch api_v1_project_url(@project2.code), params: invalid_attributes_2, headers: @headers
+                    expect(@project2.name).to_not eq(invalid_attributes_2[:name])
+                    expect(@project2.description).to_not eq(invalid_attributes_2[:description])
                     expect(response.body).to include('errors')
                     expect(response.status).to eq(422)
                 end
