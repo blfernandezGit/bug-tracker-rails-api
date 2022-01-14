@@ -63,7 +63,10 @@ class Api::V1::ProjectsController < Api::V1::RootController
   end
 
   def update
-    if @project.update(project_params)
+    project_params_updated = project_params
+    project_params_updated[:code] = project_params_updated[:name].parameterize unless !project_params_updated[:name]
+    
+    if @project.update(project_params_updated)
         render json: {
             status: '200',
             data: ProjectSerializer.new(@project).serializable_hash,
