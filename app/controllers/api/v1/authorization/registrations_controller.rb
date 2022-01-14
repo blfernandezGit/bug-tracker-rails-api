@@ -31,7 +31,7 @@ class Api::V1::Authorization::RegistrationsController < Devise::RegistrationsCon
   private
 
   def sign_up_params
-    params.permit(:email, :password, :password_confirmation, :first_name, :last_name, :username, :is_admin)
+    params.permit(:email, :password, :password_confirmation, :first_name, :last_name, :username)
   end
 
   def unprocessable_entity(messages)
@@ -50,7 +50,7 @@ class Api::V1::Authorization::RegistrationsController < Devise::RegistrationsCon
 
   # If you have extra params to permit, append them to the sanitizer.
   def configure_sign_up_params
-    devise_parameter_sanitizer.permit(:sign_up, keys: %i[first_name last_name username is_admin])
+    devise_parameter_sanitizer.permit(:sign_up, keys: %i[first_name last_name username])
   end
 
   # If you have extra params to permit, append them to the sanitizer.
