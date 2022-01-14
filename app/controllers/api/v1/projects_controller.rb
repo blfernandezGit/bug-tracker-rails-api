@@ -2,13 +2,41 @@ class Api::V1::ProjectsController < Api::V1::RootController
     before_action :authenticate_api_v1_admin!, only: [:create, :update, :destroy]
     before_action :set_project, only: [:update, :destroy]
   def index
-    projects = Project.all
-    render json: ProjectSerializer.new(projects).serializable_hash.to_json
+    @projects = Project.all
+    if @projects.count > 0
+      render json: {
+        status: '200',
+        data: ProjectSerializer.new(@projects).serializable_hash,
+        messages: [ 'Projects successfully retrieved.' ]
+      }, status: :ok
+    else
+      render json: {
+        status: '422',
+        errors: [
+            title: 'Unprocessable Entity',
+            messages: [ 'No projects found.' ]
+        ]    
+      }, status: :unprocessable_entity
+    end
   end
 
   def show
-    project = Project.find_by(code: params[:code])
-    render json: ProjectSerializer.new(project).serializable_hash.to_json
+    @project = Project.find_by(code: params[:code])
+    if @project
+      render json: {
+        status: '200',
+        data: ProjectSerializer.new(@project).serializable_hash,
+        messages: [ 'Project successfully retrieved.' ]
+      }, status: :ok
+    else
+      render json: {
+        status: '422',
+        errors: [
+            title: 'Unprocessable Entity',
+            messages: [ 'Project does not exist.' ]
+        ]    
+      }, status: :unprocessable_entity
+    end
   end
 
   def create
