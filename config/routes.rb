@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1, defaults: { format: :json } do
       resources :projects, param: :code #use code-slug as primary parameter instead of id for projects routing
+      resources :users, param: :username
       devise_for :users,
       path: '',
       path_names: {
