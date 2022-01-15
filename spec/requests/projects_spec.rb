@@ -6,6 +6,8 @@ RSpec.describe 'Projects API Test', type: :request do
         @project.update(code: @project.name.parameterize)
         @project2 = create(:project)
         @project2.update(code: @project2.name.parameterize)
+        @admin2 = create(:user, :admin)
+        @user2 = create(:user)
     end
 
     let(:valid_attributes) {
@@ -68,7 +70,6 @@ RSpec.describe 'Projects API Test', type: :request do
                 
                 before(:example) { 
                     get api_v1_project_url(@project.code), headers: @headers
-                    
                 }
                 
 
@@ -109,6 +110,13 @@ RSpec.describe 'Projects API Test', type: :request do
                         post api_v1_projects_url, params: valid_attributes, headers: @headers
                     }.to change(Project.all, :count).by(1)
                     expect(response.status).to eq(200)
+                end
+
+                it "adds project membership for all admins" do
+                    post api_v1_projects_url, params: valid_attributes, headers: @headers
+                    @new_project = Project.find_by(name: valid_attributes[:name])
+                    expect(@admin2.projects.to_json).to include(@new_project.id)
+                    expect(@user2.projects.to_json).to_not include(@new_project.id)
                 end
             end
 
