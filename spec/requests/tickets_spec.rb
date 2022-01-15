@@ -44,9 +44,9 @@ RSpec.describe 'Tickets API Test', type: :request do
         end
 
         it "contains expected ticket attributes" do
-            json_response = JSON.parse(response.body)['data']['data']
+            json_response_data = JSON.parse(response.body)['data']['data'][0]
             attributes = json_response_data['attributes']
-            expect(attributes.keys).to match_array(["title", "description", "ticket_no", "resolution", "status", "user_id", "project_id"])
+            expect(attributes.keys).to match_array(["title", "description", "resolution", "status", "author_id", "assignee_id", "project_id"])
         end
 
         it "contains specific ticket" do
@@ -67,7 +67,7 @@ RSpec.describe 'Tickets API Test', type: :request do
             }.to change(@user.author_tickets, :count).by(1)
             expect { 
                 post api_v1_project_tickets_url(@project.code), params: { ticket: valid_attributes }, headers: @headers
-            }.to change(@user2.tickets, :count).by(0)
+            }.to change(@user2.author_tickets, :count).by(0)
             expect(response.status).to eq(200)
         end
 
@@ -85,15 +85,14 @@ RSpec.describe 'Tickets API Test', type: :request do
     describe 'User updates a ticket: PATCH /update' do
         before(:example) { 
             @ticket = create(:ticket, project: @project, author: @user)
+            patch api_v1_project_ticket_url(@project.code,@ticket.ticket_no), params: { ticket: new_attributes }, headers: @headers
         }
 
         it "updates a ticket" do
-            expect { 
-                patch api_v1_project_ticket_url(@ticket.ticket_no, @project.code), params: { ticket: new_attributes }, headers: @headers
-            }.to change(@ticket, :description).to(new_attributes[:description])
-            expect(@ticket.title).to eq(new_attributes[:title])
-            expect(@ticket.resolution).to eq(new_attributes[:resolution])
-            expect(@ticket.status).to eq(new_attributes[:status])
+            expect(Ticket.find(@ticket.id).description).to eq(new_attributes[:description])
+            expect(Ticket.find(@ticket.id).title).to eq(new_attributes[:title])
+            expect(Ticket.find(@ticket.id).resolution).to eq(new_attributes[:resolution])
+            expect(Ticket.find(@ticket.id).status).to eq(new_attributes[:status])
             expect(response.status).to eq(200)
         end
     end
@@ -105,7 +104,7 @@ RSpec.describe 'Tickets API Test', type: :request do
 
         it "deletes a ticket" do
             expect { 
-                delete api_v1_project_ticket_url(@ticket.ticket_no, @project.code), headers: @headers
+                delete api_v1_project_ticket_url(@project.code,@ticket.ticket_no), headers: @headers
             }.to change(@user.author_tickets, :count).by(-1)
             expect(response.status).to eq(200)
         end
