@@ -1,6 +1,6 @@
 class Api::V1::ProjectsController < Api::V1::RootController
     before_action :authenticate_api_v1_admin!, only: [:create, :update, :destroy]
-    before_action :set_project, only: [:update, :destroy]
+    before_action :set_project, only: [:show, :update, :destroy]
 
   def index
     @projects = Project.all
@@ -22,7 +22,6 @@ class Api::V1::ProjectsController < Api::V1::RootController
   end
 
   def show
-    @project = Project.find_by(code: params[:code])
     if @project
       render json: {
         status: '200',
@@ -71,20 +70,20 @@ class Api::V1::ProjectsController < Api::V1::RootController
     project_params_updated[:code] = project_params_updated[:name].parameterize unless !project_params_updated[:name]
     
     if @project.update(project_params_updated)
-        render json: {
-            status: '200',
-            data: ProjectSerializer.new(@project).serializable_hash,
-            messages: [ 'Project successfully updated.' ]
-        }, status: :ok
-      else
-        render json: {
-            status: '422',
-            errors: [
-                title: 'Unprocessable Entity',
-                messages: @project.errors.full_messages
-            ]    
-        }, status: :unprocessable_entity
-      end
+      render json: {
+          status: '200',
+          data: ProjectSerializer.new(@project).serializable_hash,
+          messages: [ 'Project successfully updated.' ]
+      }, status: :ok
+    else
+      render json: {
+          status: '422',
+          errors: [
+              title: 'Unprocessable Entity',
+              messages: @project.errors.full_messages
+          ]    
+      }, status: :unprocessable_entity
+    end
   end
 
   def destroy
