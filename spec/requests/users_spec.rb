@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Users API Test', type: :request do
     before(:all) do
         @user = create(:user)
+        @project = create(:project)
     end
 
     let(:valid_attributes) {
@@ -14,6 +15,17 @@ RSpec.describe 'Users API Test', type: :request do
             password: 'P@ssw0rd'
         }
     }
+
+    let(:valid_admin_attributes) {
+      {
+          first_name: 'ValidAdminFirstName',
+          last_name: 'ValidAdminLastName',
+          email: 'valid_admin_email@example.com',
+          username: 'validadminusername',
+          password: 'P@ssw0rd',
+          is_admin: true
+      }
+  }
     
     context 'User requests as Admin' do
         before(:all) do
@@ -111,11 +123,22 @@ RSpec.describe 'Users API Test', type: :request do
 
             context 'valid attributes' do
                 it "creates a new user" do
-                    expect {
-                        post api_v1_users_url, params: valid_attributes, headers: @headers
-                    }.to change(User.all, :count).by(1)
-                    expect(response.status).to eq(200)
+                  expect {
+                      post api_v1_users_url, params: valid_attributes, headers: @headers
+                  }.to change(User.all, :count).by(1)
+                  expect(response.status).to eq(200)
+                  @new_user = User.find_by(username: valid_attributes[:username])
+                  expect(@new_user.projects).to_not eq(Project.all)
                 end
+
+                it "creates a new admin user and assigns all projects to user" do
+                  expect {
+                      post api_v1_users_url, params: valid_admin_attributes, headers: @headers
+                  }.to change(User.all, :count).by(1)
+                  expect(response.status).to eq(200)
+                  @new_admin = User.find_by(username: valid_admin_attributes[:username])
+                  expect(@new_admin.projects).to eq(Project.all)
+              end
             end
 
             context 'invalid attributes' do
