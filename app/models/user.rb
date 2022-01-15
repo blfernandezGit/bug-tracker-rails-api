@@ -6,7 +6,7 @@ class User < ApplicationRecord
   #  :confirmable
 
   # User belongs to and has many projects
-  has_many :project_memberships
+  has_many :project_memberships, dependent: :destroy
   has_many :projects, through: :project_memberships
   # User has many authored tickets and has many assigned tickets
   has_many :author_tickets, class_name: 'Ticket', foreign_key: 'author_id'
@@ -23,6 +23,9 @@ class User < ApplicationRecord
       with: /\A[a-z0-9]+\Z/, 
       message: 'must be alphanumeric with lowercase letters' 
     }
+
+    scope :admins, -> { where(is_admin: true) }
+    scope :clients, -> { where(is_admin: false) }
 
   def generate_jwt
     JWT.encode({ id: id, exp: 1.day.from_now.to_i }, Rails.application.secrets.secret_key_base)

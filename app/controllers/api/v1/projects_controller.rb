@@ -46,6 +46,10 @@ class Api::V1::ProjectsController < Api::V1::RootController
     @project.code = @project.name.parameterize unless !@project.name # make url-friendly code from name
 
     if @project.save
+        @admins = User.admins
+        @admins.each do |admin|
+          admin.projects.push(@project) #TODO: Test for this
+        end
         render json: {
             status: '200',
             data: ProjectSerializer.new(@project).serializable_hash,
