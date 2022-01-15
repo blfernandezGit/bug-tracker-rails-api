@@ -48,7 +48,7 @@ class Api::V1::ProjectsController < Api::V1::RootController
     if @project.save
         @admins = User.admins
         @admins.each do |admin|
-          admin.projects.push(@project) #TODO: Test for this
+          admin.projects.push(@project)
         end
         render json: {
             status: '200',

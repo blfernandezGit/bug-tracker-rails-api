@@ -44,7 +44,7 @@ class Api::V1::UsersController < Api::V1::RootController
     @user = User.new(user_params)
 
     if @user.save
-        @user.projects = Project.all if @user.is_admin #TODO: Test for this
+        @user.projects = Project.all if @user.is_admin
         render json: {
             status: '200',
             data: UserSerializer.new(@user).serializable_hash,
