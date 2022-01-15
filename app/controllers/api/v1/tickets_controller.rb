@@ -1,0 +1,104 @@
+class Api::V1::TicketsController < Api::V1::RootController
+    before_action :get_user, :get_project
+    before_action :set_ticket, only: [:show, :update, :destroy]
+
+    def show
+        if @ticket
+            render json: {
+                status: '200',
+                data: TicketSerializer.new(@ticket).serializable_hash,
+                messages: [ 'Ticket successfully retrieved.' ]
+            }, status: :ok
+        else
+            render json: {
+                status: '422',
+                errors: [
+                    title: 'Unprocessable Entity',
+                    messages: [ 'Ticket does not exist.' ]
+                ]    
+            }, status: :unprocessable_entity
+        end
+    end
+
+    def create
+        @ticket = @project.tickets.build(ticket_params)
+        @ticket.author_id = @user.id
+
+        if @project.tickets.count == 0
+            @ticket.ticket_no = 1
+        else
+            @ticket.ticket_no = @project.tickets.order(:ticket_no).last.ticket_no + 1
+        end
+
+        if @ticket.save
+            render json: {
+                status: '200',
+                data: TicketSerializer.new(@ticket).serializable_hash,
+                messages: [ 'Ticket successfully created.' ]
+            }, status: :ok
+        else
+            render json: {
+                status: '422',
+                errors: [
+                    title: 'Unprocessable Entity',
+                    messages: @ticket.errors.full_messages
+                ]    
+            }, status: :unprocessable_entity
+        end
+    end
+
+    def update
+        if @ticket.update(ticket_params)
+            render json: {
+                status: '200',
+                data: TicketSerializer.new(@ticket).serializable_hash,
+                messages: [ 'Ticket successfully updated.' ]
+            }, status: :ok
+        else
+            render json: {
+                status: '422',
+                errors: [
+                    title: 'Unprocessable Entity',
+                    messages: @ticket.errors.full_messages
+                ]    
+            }, status: :unprocessable_entity
+        end
+    end
+
+    def destroy
+        if @ticket.destroy_all
+            render json: {
+            status: '200',
+            deletedData: TicketSerializer.new(@ticket).serializable_hash,
+            messages: [ 'Project successfully deleted.' ]
+            }, status: :ok
+        else
+            render json: {
+            status: '422',
+            errors: [
+                title: 'Unprocessable Entity',
+                messages: @ticket.errors.full_messages
+            ]    
+            }, status: :unprocessable_entity
+        end
+    end
+
+    private
+    # Use callbacks to share common setup or constraints between actions.
+    def get_project
+        @project = Project.find_by(code: params[:project_code])
+    end
+
+    def get_user
+        @user = User.find(current_api_v1_user.id)
+    end
+
+    def set_ticket
+        @ticket = Ticket.where(ticket_no: params[:ticket_no], project_id: @project.id)
+    end
+
+    # Only allow a list of trusted parameters through.
+    def ticket_params
+        params.require(:ticket).permit(:ticket_no, :title, :description, :resolution, :status, :assignee_id)
+    end
+end
