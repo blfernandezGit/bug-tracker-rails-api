@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory(:user) do
+  factory :user, aliases: [:author] do
     first_name { Faker::Name.name }
     last_name { Faker::Name.name }
     username { Faker::Internet.username.gsub('_','').gsub('.','') }

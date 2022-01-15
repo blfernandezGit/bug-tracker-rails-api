@@ -1,10 +1,10 @@
 FactoryBot.define do
-  factory :ticket do
-    title { 'MyTitle' }
-    description { 'MyDescription' }
-    resolution { 'MyResolution' }
+  factory :ticket, aliases: [:author_ticket] do
+    title { Faker::Name.name }
+    description { Faker::Name.name }
     status { 'Open' }
+    ticket_no { 1 }
     project
-    user
+    author
   end
 end
