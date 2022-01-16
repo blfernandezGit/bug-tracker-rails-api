@@ -3,7 +3,7 @@ class Api::V1::TicketsController < Api::V1::RootController
     before_action :set_ticket, only: [:show, :update, :destroy]
 
     def show
-        if @ticket.count == 1
+        if @ticket
             render json: {
                 status: '200',
                 data: TicketSerializer.new(@ticket).serializable_hash,
@@ -70,7 +70,7 @@ class Api::V1::TicketsController < Api::V1::RootController
     end
 
     def destroy
-        if @ticket[0].destroy
+        if @ticket.destroy
             render json: {
             status: '200',
             deletedData: TicketSerializer.new(@ticket).serializable_hash,
@@ -98,7 +98,7 @@ class Api::V1::TicketsController < Api::V1::RootController
     end
 
     def set_ticket
-        @ticket = Ticket.where(ticket_no: params[:ticket_no], project_id: @project.id)
+        @ticket = Ticket.where(ticket_no: params[:ticket_no], project_id: @project.id)[0]
     end
 
     # Only allow a list of trusted parameters through.
