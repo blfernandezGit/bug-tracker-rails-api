@@ -1,6 +1,6 @@
 class TicketSerializer
   include JSONAPI::Serializer
-  attributes :title, :description, :resolution, :status, :project_id, :author_id, :assignee_id
+  attributes :title, :description, :resolution, :status, :project_id, :author_id, :assignee_id, :ticket_no
 
   belongs_to :project
   belongs_to :author, class_name: 'User', serializer: UserSerializer
