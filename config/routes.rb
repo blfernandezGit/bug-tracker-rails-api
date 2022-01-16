@@ -13,7 +13,9 @@ Rails.application.routes.draw do
         sessions: 'api/v1/authorization/sessions',
       }
       resources :projects, param: :code do#use code-slug as primary parameter instead of id for projects routing
-        resources :tickets, param: :ticket_no, path: '', only: [:show, :create, :update, :destroy]
+        resources :tickets, param: :ticket_no, path: '', only: [:show, :create, :update, :destroy] do
+          resources :comments, only: [:show, :create, :update, :destroy]
+        end
       end
         resources :users, param: :username
       post '/update_user_projects', to: 'project_memberships#update_user_projects', as: 'update_user_projects'
