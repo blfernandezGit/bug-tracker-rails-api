@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_06_075358) do
+ActiveRecord::Schema.define(version: 2022_01_16_083417) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -39,10 +39,11 @@ ActiveRecord::Schema.define(version: 2022_01_06_075358) do
   create_table "projects", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.string "description"
-    t.string "code", null: false
+    t.string "code"
     t.boolean "is_active", default: true, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "last_ticket_no"
     t.index ["code"], name: "index_projects_on_code", unique: true
   end
 
@@ -65,6 +66,7 @@ ActiveRecord::Schema.define(version: 2022_01_06_075358) do
     t.uuid "assignee_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "ticket_no", null: false
     t.index ["assignee_id"], name: "index_tickets_on_assignee_id"
     t.index ["author_id"], name: "index_tickets_on_author_id"
     t.index ["project_id"], name: "index_tickets_on_project_id"

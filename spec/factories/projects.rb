@@ -1,8 +1,7 @@
 FactoryBot.define do
   factory :project do
-    name { "MyString" }
-    description { "MyString" }
-    code { "MyCode "}
-    is_active { false }
+    name { Faker::Name.name }
+    description { Faker::Name.name }
+    is_active { true }
   end
 end

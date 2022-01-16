@@ -1,149 +1,166 @@
 require 'rails_helper'
 
-@user = nil
-@project = nil
-@user2 = nil
-@project2 = nil
-@ticket = nil
-
-RSpec.describe Api::V1::TicketsRequests, type: :request do
+RSpec.describe 'Tickets API Test', type: :request do
     before(:all) do
         @project = create(:project)
+        @project.update(code: @project.name.parameterize)
         @user = create(:user)
+        @login_params = {
+            email: @user.email,
+            password: @user.password
+        }
+        post api_v1_user_session_url, params: @login_params
+        @headers = {
+            "Authorization": response.headers["Authorization"]
+        }
         @project_membership = create(:project_membership, user: @user, project: @project)
-        sign_in @user
     end
 
     let(:valid_attributes) {
         {
-            title: "ValidTicketTitle"
-            description: "ValidTicketDescription"
+            title: "ValidTicketTitle",
+            description: "ValidTicketDescription",
             status: "Open"
         }
     }
 
-    let(:new_attributes) {
+    let(:invalid_attributes) {
         {
-            title: "ValidTicketTitleUpdated"
-            description: "ValidTicketDescriptionUpdated"
-            resolution: "ValidTicketResolution"
+            title: nil,
+            description: "ValidTicketDescription",
             status: "Closed"
         }
     }
 
-    describe 'Get all tickets in a project: GET /index' do
-        before(:example) { 
-            @user2 = create(:user)
-            @ticket = create(:ticket, project: @project, user: @user)
-            get project_tickets_url(@project) 
-        }
+    describe 'View a specific ticket: GET /show' do
+        context "the ticket exists" do
+            before(:example) { 
+                @ticket = create(:ticket, project: @project, author: @user)
+                get api_v1_project_ticket_url(@project.code, @ticket.ticket_no), headers: @headers
+            }
 
-        it "renders a successful response" do
-            expect(response.status).to eq(200)
+            it "renders a successful response" do
+                expect(response.status).to eq(200)
+            end
+
+            it "contains expected ticket attributes" do
+                json_response_data = JSON.parse(response.body)['data']['data']
+                attributes = json_response_data['attributes']
+                expect(attributes.keys).to match_array(["title", "description", "resolution", "status", "author_id", "assignee_id", "project_id", "ticket_no"])
+            end
+
+            it "contains specific ticket" do
+                expect(response.body).to include(@ticket.title.to_s)
+            end
         end
 
-        it "contains expected comment attributes" do
-            json_response = JSON.parse(response.body)
-            expect(hash_body.keys).to match_array([:id, :title, :description, :resolution, :status, :user_id, :project_id])
-        end
+        context "the ticket does not exist" do
+            before(:example) { 
+                get "/api/v1/projects/#{@project.code}/dne", headers: @headers
+            }
 
-        it "contains all tickets in the current project" do
-            expect(response.body).to include(@ticket)
-        end
-    end
-
-    describe 'Get all tickets made by user: GET /index' do
-        before(:example) { 
-            @project2 = create(:project)
-            @ticket = create(:ticket, project: @project2, user: @user)
-            get user_tickets_url(@user)
-        }
-        
-        it "renders a successful response" do
-            expect(response.status).to eq(200)
-        end
-
-        it "contains expected comment attributes" do
-            json_response = JSON.parse(response.body)
-            expect(hash_body.keys).to match_array([:id, :title, :description, :resolution, :status, :user_id, :project_id])
-        end
-
-        it "contains all comments made by the current user" do
-            expect(response.body).to include(@ticket)
+            it 'throws an error' do
+                expect(response.body).to include('errors')
+                expect(response.status).to eq(422)
+            end
         end
     end
 
-    describe 'User adds a new ticket: GET /new' do
-        before(:example) { get new_project_ticket_url(@project) }
+    describe 'User creates a new ticket on a project: POST /create' do
+        context 'valid attributes' do
+            before(:example) { 
+                @user2 = create(:user) 
+                @project2 = create(:project)
+                @project2.update(code: @project2.name.parameterize)
+            }
 
-        it "renders a successful response" do
-            expect(response.status).to eq(200)
+            it "creates a new ticket with current user account only" do
+                expect { 
+                    post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
+                }.to change(@user.author_tickets, :count).by(1)
+                expect { 
+                    post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
+                }.to change(@user2.author_tickets, :count).by(0)
+                expect(response.status).to eq(200)
+            end
+
+            it "creates a new ticket on current project only" do
+                expect { 
+                    post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
+                }.to change(@project.tickets, :count).by(1)
+                expect { 
+                    post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
+                }.to change(@project2.tickets, :count).by(0)
+                expect(response.status).to eq(200)
+            end
+
+            it "updates project last ticket no." do
+                post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
+                expect(Project.find(@project.id).last_ticket_no).to eq(1)
+                expect(response.status).to eq(200)
+            end
         end
-    end
 
-    describe 'User creates a new ticket: POST /create' do
-        before(:example) { 
-            @user2 = create(:user) 
-            @project2 = create(:project)
-        }
-
-        it "creates a new ticket with current user account only" do
-            expect { 
-                post project_tickets_url(@project), params: { ticket: valid_attributes }
-            }.to change(@user.tickets, :count).by(1)
-            expect { 
-                post project_tickets_url(@project), params: { ticket: valid_attributes }
-            }.to change(@user2.tickets, :count).by(0)
-            expect(response.status).to eq(200)
-        end
-
-        it "creates a new ticket on current project only" do
-            expect { 
-                post project_tickets_url(@project), params: { ticket: valid_attributes }
-            }.to change(@project.tickets, :count).by(1)
-            expect { 
-                post project_tickets_url(@project), params: { ticket: valid_attributes }
-            }.to change(@project2.tickets, :count).by(0)
-            expect(response.status).to eq(200)
-        end
-    end
-
-    describe 'User edits a ticket: GET /edit' do
-        before(:example) { 
-            @ticket = create(:ticket, project: @project, user: @user)
-            get edit_project_ticket_url(@ticket, @project) 
-        }
-
-        it "renders a successful response" do
-            expect(response.status).to eq(200)
+        context 'invalid attributes' do
+            it "throws an error when no title" do
+                expect { 
+                    post api_v1_project_tickets_url(@project.code), params: invalid_attributes, headers: @headers
+                }.to change(Ticket.all, :count).by(0)
+                expect(response.body).to include('errors')
+                expect(response.status).to eq(422)
+            end
         end
     end
 
     describe 'User updates a ticket: PATCH /update' do
         before(:example) { 
-            @ticket = create(:ticket, project: @project, user: @user)
+            @ticket = create(:ticket, project: @project, author: @user)
         }
 
-        it "updates a ticket" do
-            expect { 
-                patch project_ticket_url(@ticket, @project), params: { ticket: new_attributes }
-            }.to change(@ticket, :description).to('ValidTicketDescriptionUpdated')
-            expect(@ticket.title).to eq("ValidTicketTitleUpdated")
-            expect(@ticket.resolution).to eq("ValidTicketResolution")
-            expect(@ticket.status).to eq("Closed")
-            expect(response.status).to eq(200)
+        let(:new_attributes) {
+            {
+                title: "ValidTicketTitleUpdated",
+                description: "ValidTicketDescriptionUpdated",
+                resolution: "ValidTicketResolution",
+                status: "Closed",
+                assignee_id: @user.id
+            }
+        }
+
+        context 'valid attributes' do
+            it "updates a ticket" do
+                patch api_v1_project_ticket_url(@project.code, @ticket.ticket_no), params: new_attributes, headers: @headers
+                expect(Ticket.find(@ticket.id).description).to eq(new_attributes[:description])
+                expect(Ticket.find(@ticket.id).title).to eq(new_attributes[:title])
+                expect(Ticket.find(@ticket.id).resolution).to eq(new_attributes[:resolution])
+                expect(Ticket.find(@ticket.id).status).to eq(new_attributes[:status])
+                expect(Ticket.find(@ticket.id).assignee_id).to eq(new_attributes[:assignee_id])
+                expect(response.status).to eq(200)
+            end
+        end
+
+        
+        context 'invalid attributes' do
+            it "throws an error when no title" do
+                patch api_v1_project_ticket_url(@project.code, @ticket.ticket_no), params: invalid_attributes, headers: @headers
+                expect(Ticket.find(@ticket.id).title).to_not eq(invalid_attributes[:title])
+                expect(Ticket.find(@ticket.id).description).to_not eq(invalid_attributes[:description])
+                expect(Ticket.find(@ticket.id).status).to_not eq(invalid_attributes[:status])
+                expect(response.body).to include('errors')
+                expect(response.status).to eq(422)
+            end
         end
     end
 
     describe 'User deletes a ticket: DELETE /destroy' do
         before(:example) { 
-            @ticket = create(:ticket, project: @project, user: @user)
+            @ticket = create(:ticket, project: @project, author: @user)
         }
 
         it "deletes a ticket" do
             expect { 
-                delete project_ticket_url(@ticket, @project)
-            }.to change(@user.tickets, :count).by(-1)
+                delete api_v1_project_ticket_url(@project.code,@ticket.ticket_no), headers: @headers
+            }.to change(@user.author_tickets, :count).by(-1)
             expect(response.status).to eq(200)
         end
     end

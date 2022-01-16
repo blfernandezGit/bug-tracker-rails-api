@@ -1,142 +1,148 @@
 require 'rails_helper'
 
-@user = nil
-@ticket = nil
-@user2 = nil
-@ticket2 = nil
-@comment = nil
+#TODO: change error code when does not exist to 404 - project, ticket, user? (spec and controller)
 
-RSpec.describe Api::V1::CommentsRequests, type: :request do
-    before(:all) do
-        @ticket = create(:ticket)
-        @user = @ticket.user
-        sign_in @user
-    end
-
-    let(:valid_attributes) {
-        {
-            comment_text: 'ValidCommentText'
-        }
+RSpec.describe 'Comments API Test', type: :request do
+  before(:all) do
+    @project = create(:project)
+    @project.update(code: @project.name.parameterize)
+    @user = create(:user)
+    @login_params = {
+        email: @user.email,
+        password: @user.password
     }
-
-    let(:new_attributes) {
-        {
-            comment_text: 'ValidCommentTextUpdated'
-        }
+    post api_v1_user_session_url, params: @login_params
+    @headers = {
+        "Authorization": response.headers["Authorization"]
     }
+    @project_membership = create(:project_membership, user: @user, project: @project)
+    @ticket = create(:ticket, author: @user, project: @project)
+  end
 
-    describe 'Get all comments in a ticket: GET /index' do
-        before(:example) { 
-            @user2 = create(:user)
-            @comment = create(:comment, ticket: @ticket, user: @user2)
-            get ticket_comments_url(@ticket) 
-        }
+  let(:valid_attributes) do
+    {
+      comment_text: 'ValidCommentText'
+    }
+  end
 
-        it "renders a successful response" do
-            expect(response.status).to eq(200)
-        end
+  let(:invalid_attributes) do
+    {
+      comment_text: nil
+    }
+  end
 
-        it "contains expected comment attributes" do
-            json_response = JSON.parse(response.body)
-            expect(hash_body.keys).to match_array([:id, :comment_text, :user_id, :ticket_id])
-        end
+  describe 'Retrieve a specific comment: GET /show' do
+    context 'the comment exists' do
+      before(:example) do
+        @comment = create(:comment, ticket: @ticket, user: @user)
+        get api_v1_project_ticket_comment_url(@project.code, @ticket.ticket_no, @comment.id), headers: @headers
+      end
 
-        it "contains all comments in the current ticket" do
-            expect(response.body).to include(@comment)
-        end
+      it 'renders a successful response' do
+        expect(response.status).to eq(200)
+      end
+
+      it 'contains expected comment attributes' do
+        json_response_data = JSON.parse(response.body)['data']['data']
+        attributes = json_response_data['attributes']
+        expect(attributes.keys).to match_array(["comment_text", "ticket_id", "user_id"])
+      end
+
+      it 'contains specific comment' do
+        expect(response.body).to include(@comment.comment_text.to_s)
+      end
     end
 
-    describe 'Get all comments made by user: GET /index' do
-        before(:example) { 
-            @ticket2 = create(:ticket)
-            @comment = create(:comment, ticket: @ticket2, user: @user)
-            get user_comments_url(@user)
-        }
-        
-        it "renders a successful response" do
-            expect(response.status).to eq(200)
-        end
+    context 'the comment does not exist' do
+      before(:example) { 
+        get "/api/v1/projects/#{@project.code}/#{@ticket.ticket_no}/comments/dne", headers: @headers
+      }
 
-        it "contains expected comment attributes" do
-            json_response = JSON.parse(response.body)
-            expect(hash_body.keys).to match_array([:id, :comment_text])
-        end
+      it 'throws an error' do
+          expect(response.body).to include('errors')
+          expect(response.status).to eq(404)
+      end
+    end
+  end
 
-        it "contains all comments made by the current user" do
-            expect(response.body).to include(@comment)
-        end
+  describe 'User creates a new comment: POST /create' do
+    context 'valid attributes' do
+      before(:example) do
+        @user2 = create(:user)
+        @ticket2 = create(:ticket)
+      end
+
+      it 'creates a new comment with current user account only' do
+        expect do
+          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: valid_attributes, headers: @headers
+        end.to change(@user.comments, :count).by(1)
+        expect do
+          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: valid_attributes, headers: @headers
+        end.to change(@user2.comments, :count).by(0)
+        expect(response.status).to eq(200)
+      end
+
+      it 'creates a new comment on current ticket only' do
+        expect do
+          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: valid_attributes, headers: @headers
+        end.to change(@ticket.comments, :count).by(1)
+        expect do
+          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: valid_attributes, headers: @headers
+        end.to change(@ticket2.comments, :count).by(0)
+        expect(response.status).to eq(200)
+      end
     end
 
-    describe 'User adds a new comment: GET /new' do
-        before(:example) { get new_ticket_comment_url(@ticket) }
+    context 'invalid attributes' do
+      it "throws an error when no comment text" do
+        expect { 
+          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: invalid_attributes, headers: @headers
+        }.to change(Ticket.all, :count).by(0)
+        expect(response.body).to include('errors')
+        expect(response.status).to eq(422)
+      end
+    end
+  end
 
-        it "renders a successful response" do
-            expect(response.status).to eq(200)
-        end
+  describe 'User updates a comment: PATCH /update' do
+    before(:example) do
+      @comment = create(:comment, ticket: @ticket, user: @user)
     end
 
-    describe 'User creates a new comment: POST /create' do
-        before(:example) { 
-            @user2 = create(:user) 
-            @ticket2 = create(:ticket)
-        }
-
-        it "creates a new comment with current user account only" do
-            expect { 
-                post ticket_comments_url(@ticket), params: { comment: valid_attributes }
-            }.to change(@user.comments, :count).by(1)
-            expect { 
-                post ticket_comments_url(@ticket), params: { comment: valid_attributes }
-            }.to change(@user2.comments, :count).by(0)
-            expect(response.status).to eq(200)
-        end
-
-        it "creates a new comment on current ticket only" do
-            expect { 
-                post ticket_comments_url(@ticket), params: { comment: valid_attributes }
-            }.to change(@ticket.comments, :count).by(1)
-            expect { 
-                post ticket_comments_url(@ticket), params: { comment: valid_attributes }
-            }.to change(@ticket2.comments, :count).by(0)
-            expect(response.status).to eq(200)
-        end
+    let(:new_attributes) do
+      {
+        comment_text: 'ValidCommentTextUpdated'
+      }
     end
 
-    describe 'User edits a comment: GET /edit' do
-        before(:example) { 
-            @comment = create(:comment, ticket: @ticket, user: @user)
-            get edit_ticket_comment_url(@ticket, @comment) 
-        }
-
-        it "renders a successful response" do
-            expect(response.status).to eq(200)
-        end
+    context 'valid attributes' do
+      it 'updates a comment' do
+        patch api_v1_project_ticket_comment_url(@project.code, @ticket.ticket_no, @comment.id), params: new_attributes, headers: @headers
+        expect(Comment.find(@comment.id).comment_text).to eq(new_attributes[:comment_text])
+        expect(response.status).to eq(200)
+      end
     end
 
-    describe 'User updates a comment: PATCH /update' do
-        before(:example) { 
-            @comment = create(:comment, ticket: @ticket, user: @user)
-        }
+    context 'invalid attributes' do
+      it "throws an error when no title" do
+        patch api_v1_project_ticket_comment_url(@project.code, @ticket.ticket_no, @comment.id), params: invalid_attributes, headers: @headers
+        expect(Comment.find(@comment.id).comment_text).to_not eq(invalid_attributes[:comment_text])
+        expect(response.body).to include('errors')
+        expect(response.status).to eq(422)
+      end
+  end
+  end
 
-        it "updates a comment" do
-            expect { 
-                patch ticket_comment_url(@ticket, @comment), params: { comment: new_attributes }
-            }.to change(@comment, :name).to('ValidCommentTextUpdated')
-            expect(@comment.name).to eq("ValidCommentTextUpdated")
-            expect(response.status).to eq(200)
-        end
+  describe 'User deletes a comment: DELETE /destroy' do
+    before(:example) do
+      @comment = create(:comment, ticket: @ticket, user: @user)
     end
 
-    describe 'User deletes a comment: DELETE /destroy' do
-        before(:example) { 
-            @comment = create(:comment, ticket: @ticket, user: @user)
-        }
-
-        it "deletes a comment" do
-            expect { 
-                delete ticket_comment_url(@ticket, @comment)
-            }.to change(@user.comments, :count).by(-1)
-            expect(response.status).to eq(200)
-        end
+    it 'deletes a comment' do
+      expect do
+        delete api_v1_project_ticket_comment_url(@project.code, @ticket.ticket_no, @comment.id), headers: @headers
+      end.to change(@user.comments, :count).by(-1)
+      expect(response.status).to eq(200)
     end
+  end
 end
