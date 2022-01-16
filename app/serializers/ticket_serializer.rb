@@ -8,6 +8,8 @@ class TicketSerializer
   has_many :comments
   has_many :ticket_relations
   has_many :related_tickets, through: :ticket_relations, serializer: TicketRelationSerializer
-  has_many :inverse_ticket_relations, class_name: 'TicketRelation', foreign_key: :related_ticket_id, serializer: TicketRelationSerializer
-  has_many :inverse_related_tickets, through: :inverse_ticket_relations, source: :ticket, serializer: TicketRelationSerializer
+  has_many :inverse_ticket_relations, class_name: 'TicketRelation', foreign_key: :related_ticket_id,
+                                      serializer: TicketRelationSerializer
+  has_many :inverse_related_tickets, through: :inverse_ticket_relations, source: :ticket,
+                                     serializer: TicketRelationSerializer
 end

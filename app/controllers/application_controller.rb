@@ -18,27 +18,27 @@ class ApplicationController < ActionController::API
     @current_user ||= super || User.find(@current_user_id)
   end
 
-    def unauthorized
-        render json: {
-        status: '401',
-        errors: [
-            {
-            title: 'Unauthorized',
-            messages: ['You need to sign in or sign up before continuing.']
-            }
-        ]
-        }, status: :unauthorized
-    end
+  def unauthorized
+    render json: {
+      status: '401',
+      errors: [
+        {
+          title: 'Unauthorized',
+          messages: ['You need to sign in or sign up before continuing.']
+        }
+      ]
+    }, status: :unauthorized
+  end
 
-    def admin_unauthorized
-        render json: {
-        status: '401',
-        errors: [
-            {
-            title: 'Unauthorized',
-            messages: ['Sorry, you do not have enough permissions to access this page.']
-            }
-        ]
-        }, status: :unauthorized
-    end
+  def admin_unauthorized
+    render json: {
+      status: '401',
+      errors: [
+        {
+          title: 'Unauthorized',
+          messages: ['Sorry, you do not have enough permissions to access this page.']
+        }
+      ]
+    }, status: :unauthorized
+  end
 end

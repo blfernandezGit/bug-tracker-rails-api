@@ -1,6 +1,6 @@
 class Api::V1::ProjectsController < Api::V1::RootController
-    before_action :authenticate_api_v1_admin!, only: [:create, :update, :destroy]
-    before_action :set_project, only: [:show, :update, :destroy]
+  before_action :authenticate_api_v1_admin!, only: %i[create update destroy]
+  before_action :set_project, only: %i[show update destroy]
 
   def index
     @projects = Project.all
@@ -8,15 +8,15 @@ class Api::V1::ProjectsController < Api::V1::RootController
       render json: {
         status: '200',
         data: ProjectSerializer.new(@projects).serializable_hash,
-        messages: [ 'Projects successfully retrieved.' ]
+        messages: ['Projects successfully retrieved.']
       }, status: :ok
     else
       render json: {
         status: '422',
         errors: [
-            title: 'Unprocessable Entity',
-            messages: [ 'No projects found.' ]
-        ]    
+          title: 'Unprocessable Entity',
+          messages: ['No projects found.']
+        ]
       }, status: :unprocessable_entity
     end
   end
@@ -26,15 +26,15 @@ class Api::V1::ProjectsController < Api::V1::RootController
       render json: {
         status: '200',
         data: ProjectSerializer.new(@project).serializable_hash,
-        messages: [ 'Project successfully retrieved.' ]
+        messages: ['Project successfully retrieved.']
       }, status: :ok
     else
       render json: {
         status: '422',
         errors: [
-            title: 'Unprocessable Entity',
-            messages: [ 'Project does not exist.' ]
-        ]    
+          title: 'Unprocessable Entity',
+          messages: ['Project does not exist.']
+        ]
       }, status: :unprocessable_entity
     end
   end
@@ -42,46 +42,46 @@ class Api::V1::ProjectsController < Api::V1::RootController
   def create
     @project = Project.new(project_params)
 
-    @project.code = @project.name.parameterize unless !@project.name # make url-friendly code from name
+    @project.code = @project.name.parameterize if @project.name # make url-friendly code from name
 
     if @project.save
-        @admins = User.admins
-        @admins.each do |admin|
-          admin.projects.push(@project)
-        end
-        render json: {
-            status: '200',
-            data: ProjectSerializer.new(@project).serializable_hash,
-            messages: [ 'Project successfully created.' ]
-        }, status: :ok
+      @admins = User.admins
+      @admins.each do |admin|
+        admin.projects.push(@project)
+      end
+      render json: {
+        status: '200',
+        data: ProjectSerializer.new(@project).serializable_hash,
+        messages: ['Project successfully created.']
+      }, status: :ok
     else
-        render json: {
-            status: '422',
-            errors: [
-                title: 'Unprocessable Entity',
-                messages: @project.errors.full_messages
-            ]    
-        }, status: :unprocessable_entity
+      render json: {
+        status: '422',
+        errors: [
+          title: 'Unprocessable Entity',
+          messages: @project.errors.full_messages
+        ]
+      }, status: :unprocessable_entity
     end
   end
 
   def update
     project_params_updated = project_params
-    project_params_updated[:code] = project_params_updated[:name].parameterize unless !project_params_updated[:name]
-    
+    project_params_updated[:code] = project_params_updated[:name].parameterize if project_params_updated[:name]
+
     if @project.update(project_params_updated)
       render json: {
-          status: '200',
-          data: ProjectSerializer.new(@project).serializable_hash,
-          messages: [ 'Project successfully updated.' ]
+        status: '200',
+        data: ProjectSerializer.new(@project).serializable_hash,
+        messages: ['Project successfully updated.']
       }, status: :ok
     else
       render json: {
-          status: '422',
-          errors: [
-              title: 'Unprocessable Entity',
-              messages: @project.errors.full_messages
-          ]    
+        status: '422',
+        errors: [
+          title: 'Unprocessable Entity',
+          messages: @project.errors.full_messages
+        ]
       }, status: :unprocessable_entity
     end
   end
@@ -91,20 +91,21 @@ class Api::V1::ProjectsController < Api::V1::RootController
       render json: {
         status: '200',
         deletedData: ProjectSerializer.new(@project).serializable_hash,
-        messages: [ 'Project successfully deleted.' ]
+        messages: ['Project successfully deleted.']
       }, status: :ok
     else
       render json: {
         status: '422',
         errors: [
-            title: 'Unprocessable Entity',
-            messages: @project.errors.full_messages
-        ]    
+          title: 'Unprocessable Entity',
+          messages: @project.errors.full_messages
+        ]
       }, status: :unprocessable_entity
     end
   end
 
   private
+
   # Use callbacks to share common setup or constraints between actions.
   def set_project
     @project = Project.find_by(code: params[:code])

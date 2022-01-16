@@ -4,5 +4,4 @@ class TicketRelationSerializer
 
   belongs_to :ticket
   belongs_to :related_ticket, class_name: 'Ticket', serializer: TicketSerializer
-
 end

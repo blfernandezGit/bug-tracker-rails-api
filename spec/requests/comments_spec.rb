@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-#TODO: change error code when does not exist to 404 - project, ticket, user? (spec and controller)
+# TODO: change error code when does not exist to 404 - project, ticket, user? (spec and controller)
 
 RSpec.describe 'Comments API Test', type: :request do
   before(:all) do
@@ -8,12 +8,12 @@ RSpec.describe 'Comments API Test', type: :request do
     @project.update(code: @project.name.parameterize)
     @user = create(:user)
     @login_params = {
-        email: @user.email,
-        password: @user.password
+      email: @user.email,
+      password: @user.password
     }
     post api_v1_user_session_url, params: @login_params
     @headers = {
-        "Authorization": response.headers["Authorization"]
+      "Authorization": response.headers['Authorization']
     }
     @project_membership = create(:project_membership, user: @user, project: @project)
     @ticket = create(:ticket, author: @user, project: @project)
@@ -45,7 +45,7 @@ RSpec.describe 'Comments API Test', type: :request do
       it 'contains expected comment attributes' do
         json_response_data = JSON.parse(response.body)['data']['data']
         attributes = json_response_data['attributes']
-        expect(attributes.keys).to match_array(["comment_text", "ticket_id", "user_id"])
+        expect(attributes.keys).to match_array(%w[comment_text ticket_id user_id])
       end
 
       it 'contains specific comment' do
@@ -54,13 +54,13 @@ RSpec.describe 'Comments API Test', type: :request do
     end
 
     context 'the comment does not exist' do
-      before(:example) { 
+      before(:example) do
         get "/api/v1/projects/#{@project.code}/#{@ticket.ticket_no}/comments/dne", headers: @headers
-      }
+      end
 
       it 'throws an error' do
-          expect(response.body).to include('errors')
-          expect(response.status).to eq(404)
+        expect(response.body).to include('errors')
+        expect(response.status).to eq(404)
       end
     end
   end
@@ -74,30 +74,35 @@ RSpec.describe 'Comments API Test', type: :request do
 
       it 'creates a new comment with current user account only' do
         expect do
-          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: valid_attributes, headers: @headers
+          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: valid_attributes,
+                                                                                     headers: @headers
         end.to change(@user.comments, :count).by(1)
         expect do
-          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: valid_attributes, headers: @headers
+          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: valid_attributes,
+                                                                                     headers: @headers
         end.to change(@user2.comments, :count).by(0)
         expect(response.status).to eq(200)
       end
 
       it 'creates a new comment on current ticket only' do
         expect do
-          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: valid_attributes, headers: @headers
+          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: valid_attributes,
+                                                                                     headers: @headers
         end.to change(@ticket.comments, :count).by(1)
         expect do
-          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: valid_attributes, headers: @headers
+          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: valid_attributes,
+                                                                                     headers: @headers
         end.to change(@ticket2.comments, :count).by(0)
         expect(response.status).to eq(200)
       end
     end
 
     context 'invalid attributes' do
-      it "throws an error when no comment text" do
-        expect { 
-          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: invalid_attributes, headers: @headers
-        }.to change(Ticket.all, :count).by(0)
+      it 'throws an error when no comment text' do
+        expect do
+          post api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), params: invalid_attributes,
+                                                                                     headers: @headers
+        end.to change(Ticket.all, :count).by(0)
         expect(response.body).to include('errors')
         expect(response.status).to eq(422)
       end
@@ -117,20 +122,22 @@ RSpec.describe 'Comments API Test', type: :request do
 
     context 'valid attributes' do
       it 'updates a comment' do
-        patch api_v1_project_ticket_comment_url(@project.code, @ticket.ticket_no, @comment.id), params: new_attributes, headers: @headers
+        patch api_v1_project_ticket_comment_url(@project.code, @ticket.ticket_no, @comment.id), params: new_attributes,
+                                                                                                headers: @headers
         expect(Comment.find(@comment.id).comment_text).to eq(new_attributes[:comment_text])
         expect(response.status).to eq(200)
       end
     end
 
     context 'invalid attributes' do
-      it "throws an error when no title" do
-        patch api_v1_project_ticket_comment_url(@project.code, @ticket.ticket_no, @comment.id), params: invalid_attributes, headers: @headers
+      it 'throws an error when no title' do
+        patch api_v1_project_ticket_comment_url(@project.code, @ticket.ticket_no, @comment.id),
+              params: invalid_attributes, headers: @headers
         expect(Comment.find(@comment.id).comment_text).to_not eq(invalid_attributes[:comment_text])
         expect(response.body).to include('errors')
         expect(response.status).to eq(422)
       end
-  end
+    end
   end
 
   describe 'User deletes a comment: DELETE /destroy' do
