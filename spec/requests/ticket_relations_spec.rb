@@ -18,25 +18,43 @@ RSpec.describe "TicketRelations", type: :request do
     @ticket2 = create(:ticket, author: @user, project: @project)
   end
 
-  describe "Add related ticket" do
-    let(:valid_attributes) {
-      {
-        ticket_id: @ticket.id,
-        related_ticket_id: @ticket2.id
-      }
+  let(:valid_attributes) {
+    {
+      ticket_id: @ticket.id,
+      related_ticket_id: @ticket2.id
     }
-    
-    before(:example) { post api_v1_add_related_ticket_url, params: valid_attributes, headers: @headers}
+  }
+
+  describe "Add related ticket" do    
+    before(:example) { post api_v1_add_related_ticket_url(@project.code, @ticket.ticket_no), params: valid_attributes, headers: @headers}
 
     it "renders a successful response" do
       expect(response.status).to eq(200)
     end
 
     it "relates specified ticket to current ticket" do
-      expect(@ticket.related_tickets.count).to eq(1)
-      expect(@ticket.related_tickets.to_json).to include(@ticket2.id)
-      expect(@ticket2.related_tickets.count).to eq(1)
-      expect(@ticket2.related_tickets.to_json).to include(@ticket.id)
+      expect(Ticket.find(@ticket.id).related_tickets.count).to eq(1)
+      expect(Ticket.find(@ticket.id).related_tickets.to_json).to include(@ticket2.id)
+      expect(Ticket.find(@ticket2.id).inverse_related_tickets.count).to eq(1)
+      expect(Ticket.find(@ticket2.id).inverse_related_tickets.to_json).to include(@ticket.id)
+    end
+  end
+
+  describe "Delete related ticket" do
+    before(:example) {
+      post api_v1_add_related_ticket_url(@project.code, @ticket.ticket_no), params: valid_attributes, headers: @headers
+      delete api_v1_delete_related_ticket_url(@project.code, @ticket.ticket_no), params: valid_attributes, headers: @headers
+    }
+
+    it "renders a successful response" do
+      expect(response.status).to eq(200)
+    end
+
+    it "removes relation of specified ticket to current ticket" do
+      expect(Ticket.find(@ticket.id).related_tickets.count).to eq(0)
+      expect(Ticket.find(@ticket.id).related_tickets.to_json).to_not include(@ticket2.id)
+      expect(Ticket.find(@ticket2.id).inverse_related_tickets.count).to eq(0)
+      expect(Ticket.find(@ticket2.id).inverse_related_tickets.to_json).to_not include(@ticket.id)
     end
   end
 end
