@@ -6,7 +6,6 @@ RSpec.describe Ticket, type: :model do
     it {
       is_expected.to have_many(:related_tickets)
         .through(:ticket_relations)
-        .source(:ticket)
     }
     it {
       is_expected.to have_many(:inverse_ticket_relations)
@@ -20,10 +19,6 @@ RSpec.describe Ticket, type: :model do
     it { is_expected.to have_many(:comments) }
     it {
       is_expected.to belong_to(:author)
-        .class_name('User')
-    }
-    it {
-      is_expected.to belong_to(:assignee)
         .class_name('User')
     }
     it { is_expected.to belong_to(:project) }
