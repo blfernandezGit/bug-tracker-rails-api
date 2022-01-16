@@ -1,5 +1,7 @@
 require 'rails_helper'
 
+#TODO: change error code when does not exist to 404 - project, ticket, user? (spec and controller)
+
 RSpec.describe 'Comments API Test', type: :request do
   before(:all) do
     @project = create(:project)
@@ -41,11 +43,9 @@ RSpec.describe 'Comments API Test', type: :request do
       end
 
       it 'contains expected comment attributes' do
-        pry
         json_response_data = JSON.parse(response.body)['data']['data']
-        pry
         attributes = json_response_data['attributes']
-        expect(attributes.keys).to match_array(["comment_text"])
+        expect(attributes.keys).to match_array(["comment_text", "ticket_id", "user_id"])
       end
 
       it 'contains specific comment' do
@@ -60,7 +60,7 @@ RSpec.describe 'Comments API Test', type: :request do
 
       it 'throws an error' do
           expect(response.body).to include('errors')
-          expect(response.status).to eq(422)
+          expect(response.status).to eq(404)
       end
     end
   end
@@ -117,9 +117,8 @@ RSpec.describe 'Comments API Test', type: :request do
 
     context 'valid attributes' do
       it 'updates a comment' do
-        expect do
-          patch api_v1_project_ticket_comment_url(@project.code, @ticket.ticket_no, @comment.id), params: new_attributes, headers: @headers
-        end.to change(@comment, :comment_text).to(new_attributes[:comment_text])
+        patch api_v1_project_ticket_comment_url(@project.code, @ticket.ticket_no, @comment.id), params: new_attributes, headers: @headers
+        expect(Comment.find(@comment.id).comment_text).to eq(new_attributes[:comment_text])
         expect(response.status).to eq(200)
       end
     end
