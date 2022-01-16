@@ -24,13 +24,11 @@ RSpec.describe 'Tickets API Test', type: :request do
         }
     }
 
-    let(:new_attributes) {
+    let(:invalid_attributes) {
         {
-            title: "ValidTicketTitleUpdated",
-            description: "ValidTicketDescriptionUpdated",
-            resolution: "ValidTicketResolution",
-            status: "Closed",
-            assignee_id: @user.id
+            title: nil,
+            description: "ValidTicketDescription",
+            status: "Closed"
         }
     }
 
@@ -46,7 +44,7 @@ RSpec.describe 'Tickets API Test', type: :request do
             end
 
             it "contains expected ticket attributes" do
-                json_response_data = JSON.parse(response.body)['data']['data'][0]
+                json_response_data = JSON.parse(response.body)['data']['data']
                 attributes = json_response_data['attributes']
                 expect(attributes.keys).to match_array(["title", "description", "resolution", "status", "author_id", "assignee_id", "project_id", "ticket_no"])
             end
@@ -69,52 +67,88 @@ RSpec.describe 'Tickets API Test', type: :request do
     end
 
     describe 'User creates a new ticket on a project: POST /create' do
-        before(:example) { 
-            @user2 = create(:user) 
-            @project2 = create(:project)
-            @project2.update(code: @project2.name.parameterize)
-        }
+        context 'valid attributes' do
+            before(:example) { 
+                @user2 = create(:user) 
+                @project2 = create(:project)
+                @project2.update(code: @project2.name.parameterize)
+            }
 
-        it "creates a new ticket with current user account only" do
-            expect { 
+            it "creates a new ticket with current user account only" do
+                expect { 
+                    post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
+                }.to change(@user.author_tickets, :count).by(1)
+                expect { 
+                    post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
+                }.to change(@user2.author_tickets, :count).by(0)
+                expect(response.status).to eq(200)
+            end
+
+            it "creates a new ticket on current project only" do
+                expect { 
+                    post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
+                }.to change(@project.tickets, :count).by(1)
+                expect { 
+                    post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
+                }.to change(@project2.tickets, :count).by(0)
+                expect(response.status).to eq(200)
+            end
+
+            it "updates project last ticket no." do
                 post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
-            }.to change(@user.author_tickets, :count).by(1)
-            expect { 
-                post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
-            }.to change(@user2.author_tickets, :count).by(0)
-            expect(response.status).to eq(200)
+                expect(Project.find(@project.id).last_ticket_no).to eq(1)
+                expect(response.status).to eq(200)
+            end
         end
 
-        it "creates a new ticket on current project only" do
-            expect { 
-                post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
-            }.to change(@project.tickets, :count).by(1)
-            expect { 
-                post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
-            }.to change(@project2.tickets, :count).by(0)
-            expect(response.status).to eq(200)
-        end
-
-        it "updates project last ticket no." do
-            post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
-            expect(Project.find(@project.id).last_ticket_no).to eq(1)
-            expect(response.status).to eq(200)
+        context 'invalid attributes' do
+            it "throws an error when no title" do
+                expect { 
+                    post api_v1_project_tickets_url(@project.code), params: invalid_attributes, headers: @headers
+                }.to change(Ticket.all, :count).by(0)
+                expect(response.body).to include('errors')
+                expect(response.status).to eq(422)
+            end
         end
     end
 
     describe 'User updates a ticket: PATCH /update' do
         before(:example) { 
             @ticket = create(:ticket, project: @project, author: @user)
-            patch api_v1_project_ticket_url(@project.code,@ticket.ticket_no), params: new_attributes, headers: @headers
         }
 
-        it "updates a ticket" do
-            expect(Ticket.find(@ticket.id).description).to eq(new_attributes[:description])
-            expect(Ticket.find(@ticket.id).title).to eq(new_attributes[:title])
-            expect(Ticket.find(@ticket.id).resolution).to eq(new_attributes[:resolution])
-            expect(Ticket.find(@ticket.id).status).to eq(new_attributes[:status])
-            expect(Ticket.find(@ticket.id).assignee_id).to eq(new_attributes[:assignee_id])
-            expect(response.status).to eq(200)
+        let(:new_attributes) {
+            {
+                title: "ValidTicketTitleUpdated",
+                description: "ValidTicketDescriptionUpdated",
+                resolution: "ValidTicketResolution",
+                status: "Closed",
+                assignee_id: @user.id
+            }
+        }
+
+        context 'valid attributes' do
+            it "updates a ticket" do
+                patch api_v1_project_ticket_url(@project.code, @ticket.ticket_no), params: new_attributes, headers: @headers
+                expect(Ticket.find(@ticket.id).description).to eq(new_attributes[:description])
+                expect(Ticket.find(@ticket.id).title).to eq(new_attributes[:title])
+                expect(Ticket.find(@ticket.id).resolution).to eq(new_attributes[:resolution])
+                expect(Ticket.find(@ticket.id).status).to eq(new_attributes[:status])
+                expect(Ticket.find(@ticket.id).assignee_id).to eq(new_attributes[:assignee_id])
+                expect(response.status).to eq(200)
+            end
+        end
+
+        
+        context 'invalid attributes' do
+            it "throws an error when no title" do
+                patch api_v1_project_ticket_url(@project.code, @ticket.ticket_no), params: invalid_attributes, headers: @headers
+                expect(Ticket.find(@ticket.id).title).to_not eq(invalid_attributes[:title])
+                expect(Ticket.find(@ticket.id).description).to_not eq(invalid_attributes[:description])
+                expect(Ticket.find(@ticket.id).status).to_not eq(invalid_attributes[:status])
+                expect(response.body).to include('errors')
+                expect(response.status).to eq(422)
+            end
         end
     end
 
