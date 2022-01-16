@@ -34,6 +34,11 @@ class Api::V1::TicketRelationsController < Api::V1::RootController
 
     def delete_related_ticket
         @ticket_relation = TicketRelation.find_by(ticket_id: @ticket.id, related_ticket_id: @related_ticket.id)
+        
+        if !@ticket_relation
+            @ticket_relation = TicketRelation.find_by(ticket_id: @related_ticket.id, related_ticket_id: @ticket.id)
+        end
+
         if @ticket_relation.destroy
             render json: {
             status: '200',
@@ -53,12 +58,12 @@ class Api::V1::TicketRelationsController < Api::V1::RootController
 
     private
     def set_tickets
-        @ticket = Ticket.find_by(project_id: Project.find_by(code: params[:project_code]), ticket_no: ticket_relation_params[:ticket_ticket_no])
+        @ticket = Ticket.find_by(project_id: Project.find_by(code: params[:project_code]), ticket_no: params[:ticket_ticket_no])
         @related_ticket = Ticket.find(ticket_relation_params[:related_ticket_id])
     end
 
     # Only allow a list of trusted parameters through.
     def ticket_relation_params
-        params.permit(:ticket_ticket_no, :related_ticket_id)
+        params.permit(:related_ticket_id)
     end
 end
