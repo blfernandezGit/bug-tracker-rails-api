@@ -29,28 +29,42 @@ RSpec.describe 'Tickets API Test', type: :request do
             title: "ValidTicketTitleUpdated",
             description: "ValidTicketDescriptionUpdated",
             resolution: "ValidTicketResolution",
-            status: "Closed"
+            status: "Closed",
+            assignee_id: @user.id
         }
     }
 
     describe 'View a specific ticket: GET /show' do
-        before(:example) { 
-            @ticket = create(:ticket, project: @project, author: @user)
-            get api_v1_project_ticket_url(@project.code, @ticket.ticket_no), headers: @headers
-        }
+        context "the ticket exists" do
+            before(:example) { 
+                @ticket = create(:ticket, project: @project, author: @user)
+                get api_v1_project_ticket_url(@project.code, @ticket.ticket_no), headers: @headers
+            }
 
-        it "renders a successful response" do
-            expect(response.status).to eq(200)
+            it "renders a successful response" do
+                expect(response.status).to eq(200)
+            end
+
+            it "contains expected ticket attributes" do
+                json_response_data = JSON.parse(response.body)['data']['data'][0]
+                attributes = json_response_data['attributes']
+                expect(attributes.keys).to match_array(["title", "description", "resolution", "status", "author_id", "assignee_id", "project_id", "ticket_no"])
+            end
+
+            it "contains specific ticket" do
+                expect(response.body).to include(@ticket.title.to_s)
+            end
         end
 
-        it "contains expected ticket attributes" do
-            json_response_data = JSON.parse(response.body)['data']['data'][0]
-            attributes = json_response_data['attributes']
-            expect(attributes.keys).to match_array(["title", "description", "resolution", "status", "author_id", "assignee_id", "project_id"])
-        end
+        context "the ticket does not exist" do
+            before(:example) { 
+                get "/api/v1/projects/#{@project.code}/dne", headers: @headers
+            }
 
-        it "contains specific ticket" do
-            expect(response.body).to include(@ticket.title.to_s)
+            it 'throws an error' do
+                expect(response.body).to include('errors')
+                expect(response.status).to eq(422)
+            end
         end
     end
 
@@ -63,21 +77,27 @@ RSpec.describe 'Tickets API Test', type: :request do
 
         it "creates a new ticket with current user account only" do
             expect { 
-                post api_v1_project_tickets_url(@project.code), params: { ticket: valid_attributes }, headers: @headers
+                post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
             }.to change(@user.author_tickets, :count).by(1)
             expect { 
-                post api_v1_project_tickets_url(@project.code), params: { ticket: valid_attributes }, headers: @headers
+                post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
             }.to change(@user2.author_tickets, :count).by(0)
             expect(response.status).to eq(200)
         end
 
         it "creates a new ticket on current project only" do
             expect { 
-                post api_v1_project_tickets_url(@project.code), params: { ticket: valid_attributes }, headers: @headers
+                post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
             }.to change(@project.tickets, :count).by(1)
             expect { 
-                post api_v1_project_tickets_url(@project.code), params: { ticket: valid_attributes }, headers: @headers
+                post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
             }.to change(@project2.tickets, :count).by(0)
+            expect(response.status).to eq(200)
+        end
+
+        it "updates project last ticket no." do
+            post api_v1_project_tickets_url(@project.code), params: valid_attributes, headers: @headers
+            expect(Project.find(@project.id).last_ticket_no).to eq(1)
             expect(response.status).to eq(200)
         end
     end
@@ -85,7 +105,7 @@ RSpec.describe 'Tickets API Test', type: :request do
     describe 'User updates a ticket: PATCH /update' do
         before(:example) { 
             @ticket = create(:ticket, project: @project, author: @user)
-            patch api_v1_project_ticket_url(@project.code,@ticket.ticket_no), params: { ticket: new_attributes }, headers: @headers
+            patch api_v1_project_ticket_url(@project.code,@ticket.ticket_no), params: new_attributes, headers: @headers
         }
 
         it "updates a ticket" do
@@ -93,6 +113,7 @@ RSpec.describe 'Tickets API Test', type: :request do
             expect(Ticket.find(@ticket.id).title).to eq(new_attributes[:title])
             expect(Ticket.find(@ticket.id).resolution).to eq(new_attributes[:resolution])
             expect(Ticket.find(@ticket.id).status).to eq(new_attributes[:status])
+            expect(Ticket.find(@ticket.id).assignee_id).to eq(new_attributes[:assignee_id])
             expect(response.status).to eq(200)
         end
     end
