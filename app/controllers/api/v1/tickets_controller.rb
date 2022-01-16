@@ -3,7 +3,7 @@ class Api::V1::TicketsController < Api::V1::RootController
     before_action :set_ticket, only: [:show, :update, :destroy]
 
     def show
-        if @ticket
+        if @ticket.count == 1
             render json: {
                 status: '200',
                 data: TicketSerializer.new(@ticket).serializable_hash,
@@ -22,13 +22,17 @@ class Api::V1::TicketsController < Api::V1::RootController
 
     def create
         @ticket = @project.tickets.build(ticket_params)
-        @ticket.author_id = @user.id
+        @ticket.author_id = @user.id # Assign current user as ticket author
 
-        if @project.tickets.count == 0
+        # Assign ticket no.
+        if !@project.last_ticket_no
             @ticket.ticket_no = 1
         else
-            @ticket.ticket_no = @project.tickets.order(:ticket_no).last.ticket_no + 1
+            @ticket.ticket_no = @project.last_ticket_no + 1
         end
+
+        # Assign last ticket no. for the project
+        @project.update(last_ticket_no: @ticket.ticket_no)
 
         if @ticket.save
             render json: {
@@ -66,11 +70,11 @@ class Api::V1::TicketsController < Api::V1::RootController
     end
 
     def destroy
-        if @ticket.destroy_all
+        if @ticket[0].destroy
             render json: {
             status: '200',
             deletedData: TicketSerializer.new(@ticket).serializable_hash,
-            messages: [ 'Project successfully deleted.' ]
+            messages: [ 'Ticket successfully deleted.' ]
             }, status: :ok
         else
             render json: {
@@ -99,6 +103,6 @@ class Api::V1::TicketsController < Api::V1::RootController
 
     # Only allow a list of trusted parameters through.
     def ticket_params
-        params.require(:ticket).permit(:ticket_no, :title, :description, :resolution, :status, :assignee_id)
+        params.permit(:ticket_no, :title, :description, :resolution, :status, :assignee_id)
     end
 end
