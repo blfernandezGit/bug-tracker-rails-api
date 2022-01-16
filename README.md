@@ -1,8 +1,8 @@
-**NABI PROJECT**
+# NABI PROJECT
 
 Nabi Project is a simple bug tracking app that allows user to create tickets in a project and comment on them. Currently in its base state. More features will be applied after Front-end part of the app is stable.
 
-# USER STORIES
+**USER STORIES**
 
 1. Admin
 User Story #1: As an Admin, I want to create, edit, and view a User
