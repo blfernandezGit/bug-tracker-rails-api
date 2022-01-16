@@ -1,7 +1,7 @@
 class Api::V1::RootController < ApplicationController
   before_action :process_token
   before_action :authenticate_api_v1_user!
-#   rescue_from ActiveRecord::RecordNotFound, with: :not_found
+  rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
   # Extract user id from passed jwt using jwt gem with error handling
   def process_token
