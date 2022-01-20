@@ -31,6 +31,27 @@ RSpec.describe 'Comments API Test', type: :request do
     }
   end
 
+  describe 'Get all comments in a ticket: GET /index' do
+    before(:example) do
+      @comment = create(:comment, ticket: @ticket)
+      get api_v1_project_ticket_comments_url(@project.code, @ticket.ticket_no), headers: @headers
+    end
+
+    it 'renders a successful response' do
+      expect(response.status).to eq(200)
+    end
+
+    it 'contains expected comment attributes' do
+      json_response_data = JSON.parse(response.body)['data'][0]
+      attributes = json_response_data['attributes']
+      expect(attributes.keys).to match_array(%w[comment_text ticket_id user_id])
+    end
+
+    it 'contains all comments in a ticket' do
+      expect(response.body).to include(@comment.comment_text.to_s)
+    end
+  end
+
   describe 'Retrieve a specific comment: GET /show' do
     context 'the comment exists' do
       before(:example) do
@@ -55,7 +76,7 @@ RSpec.describe 'Comments API Test', type: :request do
 
     context 'the comment does not exist' do
       before(:example) do
-        get "/api/v1/projects/#{@project.code}/#{@ticket.ticket_no}/comments/dne", headers: @headers
+        get "/api/v1/projects/#{@project.code}/tickets/#{@ticket.ticket_no}/comments/dne", headers: @headers
       end
 
       it 'throws an error' do

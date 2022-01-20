@@ -32,6 +32,28 @@ RSpec.describe 'Tickets API Test', type: :request do
     }
   end
 
+  describe 'Get all tickets in a project: GET /index' do
+    before(:example) do
+      @ticket = create(:ticket, project: @project)
+      get api_v1_project_tickets_url(@project.code), headers: @headers
+    end
+
+    it 'renders a successful response' do
+      expect(response.status).to eq(200)
+    end
+
+    it 'contains expected ticket attributes' do
+      json_response_data = JSON.parse(response.body)['data'][0]
+    attributes = json_response_data['attributes']
+      expect(attributes.keys).to match_array(%w[title description resolution status author_id
+        assignee_id project_id ticket_no])
+    end
+
+    it 'contains all tickets in a project' do
+      expect(response.body).to include(@ticket.title.to_s)
+    end
+  end
+
   describe 'View a specific ticket: GET /show' do
     context 'the ticket exists' do
       before(:example) do
@@ -57,7 +79,7 @@ RSpec.describe 'Tickets API Test', type: :request do
 
     context 'the ticket does not exist' do
       before(:example) do
-        get "/api/v1/projects/#{@project.code}/dne", headers: @headers
+        get "/api/v1/projects/#{@project.code}/tickets/dne", headers: @headers
       end
 
       it 'throws an error' do

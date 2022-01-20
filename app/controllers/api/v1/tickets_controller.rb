@@ -2,6 +2,24 @@ class Api::V1::TicketsController < Api::V1::RootController
   before_action :get_user, :get_project
   before_action :set_ticket, only: %i[show update destroy]
 
+  def index
+    @tickets = @project.tickets
+    if @tickets.count > 0
+      render json: TicketSerializer.new(@tickets).serializable_hash.merge!({
+                                                                                status: '200',
+                                                                                messages: ['Tickets successfully retrieved.']
+                                                                            }), status: :ok
+    else
+      render json: {
+        status: '422',
+        errors: [
+          title: 'Unprocessable Entity',
+          messages: ['No projects found.']
+        ]
+      }, status: :unprocessable_entity
+    end
+  end
+
   def show
     if @ticket
       render json: TicketSerializer.new(@ticket).serializable_hash.merge!({

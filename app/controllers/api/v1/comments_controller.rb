@@ -2,6 +2,24 @@ class Api::V1::CommentsController < Api::V1::RootController
   before_action :get_user, :get_ticket
   before_action :set_comment, only: %i[show update destroy]
 
+  def index
+    @comments = @ticket.comments
+    if @comments.count > 0
+      render json: CommentSerializer.new(@comments).serializable_hash.merge!({
+                                                                                status: '200',
+                                                                                messages: ['Comments successfully retrieved.']
+                                                                            }), status: :ok
+    else
+      render json: {
+        status: '422',
+        errors: [
+          title: 'Unprocessable Entity',
+          messages: ['No projects found.']
+        ]
+      }, status: :unprocessable_entity
+    end
+  end
+
   def show
     if @comment
       render json: CommentSerializer.new(@comment).serializable_hash.merge!({
