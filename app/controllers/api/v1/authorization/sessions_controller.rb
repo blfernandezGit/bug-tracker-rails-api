@@ -14,7 +14,7 @@ class Api::V1::Authorization::SessionsController < Devise::SessionsController
         first_name: @user.first_name,
         last_name: @user.last_name,
         username: @user.username,
-        is_admin: @user.is_admin
+        is_admin: @user.is_admin,
         authToken: @token
       } }.merge!({
                    status: '200',
