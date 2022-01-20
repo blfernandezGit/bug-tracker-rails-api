@@ -55,7 +55,7 @@ RSpec.describe 'Projects API Test', type: :request do
       end
 
       it 'contains expected project attributes' do
-        json_response_data = JSON.parse(response.body)['data']['data'][0]
+        json_response_data = JSON.parse(response.body)['data'][0]
         attributes = json_response_data['attributes']
         expect(attributes.keys).to match_array(%w[code name description is_active last_ticket_no])
       end
@@ -76,7 +76,7 @@ RSpec.describe 'Projects API Test', type: :request do
         end
 
         it 'contains expected project attributes' do
-          json_response_data = JSON.parse(response.body)['data']['data']
+          json_response_data = JSON.parse(response.body)['data']
           attributes = json_response_data['attributes']
           expect(attributes.keys).to match_array(%w[code name description is_active
                                                     last_ticket_no])
@@ -210,7 +210,7 @@ RSpec.describe 'Projects API Test', type: :request do
       end
 
       it 'contains expected project attributes' do
-        json_response_data = JSON.parse(response.body)['data']['data'][0]
+        json_response_data = JSON.parse(response.body)['data'][0]
         attributes = json_response_data['attributes']
         expect(attributes.keys).to match_array(%w[code name description is_active last_ticket_no])
         expect(response.body).to include('users')
@@ -234,7 +234,7 @@ RSpec.describe 'Projects API Test', type: :request do
         end
 
         it 'contains expected project attributes' do
-          json_response_data = JSON.parse(response.body)['data']['data']
+          json_response_data = JSON.parse(response.body)['data']
           attributes = json_response_data['attributes']
           expect(attributes.keys).to match_array(%w[code name description is_active
                                                     last_ticket_no])

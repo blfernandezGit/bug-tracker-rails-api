@@ -5,13 +5,13 @@ class Api::V1::TicketRelationsController < Api::V1::RootController
     if !@ticket.related_tickets.include?(@related_ticket) && !@ticket.inverse_related_tickets.include?(@related_ticket)
       @ticket_relation = @ticket.ticket_relations.build(related_ticket_id: @related_ticket.id)
       if @ticket_relation.save
-        render json: {
-          status: '200',
-          data: {
-            ticket_id: @ticket.id,
-            related_ticket_id: @related_ticket.id
-          }, messages: ['Tickets successfully related.']
-        }, status: :ok
+        render json: { data: {
+          ticket_id: @ticket.id,
+          related_ticket_id: @related_ticket.id
+        } }.merge!({
+                     status: '200',
+                     messages: ['Tickets successfully related.']
+                   }), status: :ok
       else
         render json: {
           status: '422',
@@ -38,11 +38,13 @@ class Api::V1::TicketRelationsController < Api::V1::RootController
     @ticket_relation ||= TicketRelation.find_by(ticket_id: @related_ticket.id, related_ticket_id: @ticket.id)
 
     if @ticket_relation.destroy
-      render json: {
-        status: '200',
-        deletedData: TicketRelationSerializer.new(@ticket_relation).serializable_hash,
-        messages: ['Successfully remove tickets relation.']
-      }, status: :ok
+      render json: { data: {
+        ticket_id: @ticket.id,
+        related_ticket_id: @related_ticket.id
+      } }.merge!({
+                   status: '200',
+                   messages: ['Successfully remove tickets relation.']
+                 }), status: :ok
     else
       render json: {
         status: '422',

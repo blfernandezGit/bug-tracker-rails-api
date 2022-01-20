@@ -44,7 +44,7 @@ RSpec.describe 'Tickets API Test', type: :request do
       end
 
       it 'contains expected ticket attributes' do
-        json_response_data = JSON.parse(response.body)['data']['data']
+        json_response_data = JSON.parse(response.body)['data']
         attributes = json_response_data['attributes']
         expect(attributes.keys).to match_array(%w[title description resolution status author_id
                                                   assignee_id project_id ticket_no])

@@ -4,11 +4,10 @@ class Api::V1::TicketsController < Api::V1::RootController
 
   def show
     if @ticket
-      render json: {
-        status: '200',
-        data: TicketSerializer.new(@ticket).serializable_hash,
-        messages: ['Ticket successfully retrieved.']
-      }, status: :ok
+      render json: TicketSerializer.new(@ticket).serializable_hash.merge!({
+                                                                            status: '200',
+                                                                            messages: ['Ticket successfully retrieved.']
+                                                                          }), status: :ok
     else
       render json: {
         status: '422',
@@ -35,11 +34,10 @@ class Api::V1::TicketsController < Api::V1::RootController
     @project.update(last_ticket_no: @ticket.ticket_no)
 
     if @ticket.save
-      render json: {
-        status: '200',
-        data: TicketSerializer.new(@ticket).serializable_hash,
-        messages: ['Ticket successfully created.']
-      }, status: :ok
+      render json: TicketSerializer.new(@ticket).serializable_hash.merge!({
+                                                                            status: '200',
+                                                                            messages: ['Ticket successfully created.']
+                                                                          }), status: :ok
     else
       render json: {
         status: '422',
@@ -53,11 +51,10 @@ class Api::V1::TicketsController < Api::V1::RootController
 
   def update
     if @ticket.update(ticket_params)
-      render json: {
-        status: '200',
-        data: TicketSerializer.new(@ticket).serializable_hash,
-        messages: ['Ticket successfully updated.']
-      }, status: :ok
+      render json: TicketSerializer.new(@ticket).serializable_hash.merge!({
+                                                                            status: '200',
+                                                                            messages: ['Ticket successfully updated.']
+                                                                          }), status: :ok
     else
       render json: {
         status: '422',
@@ -71,11 +68,10 @@ class Api::V1::TicketsController < Api::V1::RootController
 
   def destroy
     if @ticket.destroy
-      render json: {
-        status: '200',
-        deletedData: TicketSerializer.new(@ticket).serializable_hash,
-        messages: ['Ticket successfully deleted.']
-      }, status: :ok
+      render json: TicketSerializer.new(@ticket).serializable_hash.merge!({
+                                                                            status: '200',
+                                                                            messages: ['Ticket successfully deleted.']
+                                                                          }), status: :ok
     else
       render json: {
         status: '422',
@@ -99,7 +95,7 @@ class Api::V1::TicketsController < Api::V1::RootController
   end
 
   def set_ticket
-    @ticket = Ticket.where(ticket_no: params[:ticket_no], project_id: @project.id)[0]
+    @ticket = Ticket.find_by(ticket_no: params[:ticket_no], project_id: @project.id)
   end
 
   # Only allow a list of trusted parameters through.

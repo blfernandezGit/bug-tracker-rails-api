@@ -14,15 +14,17 @@ class Api::V1::Authorization::RegistrationsController < Devise::RegistrationsCon
       sign_up(resource_name, resource)
       @token = @user.generate_jwt
       response.set_header('Authorization', @token)
-      render json: {
-        status: '200',
+      render json: { data: {
         email: @user.email,
         first_name: @user.first_name,
         last_name: @user.last_name,
         username: @user.username,
         is_admin: @user.is_admin,
         authToken: @token
-      }, status: :ok
+      } }.merge!({
+                   status: '200',
+                   messages: ['User successfully signed up.']
+                 }), status: :ok
     else
       unprocessable_entity(@user.errors.full_messages)
     end

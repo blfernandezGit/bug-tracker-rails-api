@@ -9,14 +9,16 @@ class Api::V1::Authorization::SessionsController < Devise::SessionsController
     if @user && @user.valid_password?(sign_in_params[:password])
       @token = @user.generate_jwt
       response.set_header('Authorization', @token)
-      render json: {
-        status: '200',
+      render json: { data: {
         email: @user.email,
         first_name: @user.first_name,
         last_name: @user.last_name,
         username: @user.username,
         authToken: @token
-      }, status: :ok
+      } }.merge!({
+                   status: '200',
+                   messages: ['User successfully signed in.']
+                 }), status: :ok
     elsif !@user
       unprocessable_entity('User is not registered.')
     else

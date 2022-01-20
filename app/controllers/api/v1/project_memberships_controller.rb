@@ -16,13 +16,13 @@ class Api::V1::ProjectMembershipsController < Api::V1::RootController
 
         @user.projects = @user_projects.uniq
 
-        render json: {
-          status: '200',
-          data: {
-            user_id: @user.id,
-            project_ids: @user.projects.ids
-          }, messages: ['User successfully added to projects.']
-        }, status: :ok
+        render json: { data: {
+          user_id: @user.id,
+          project_ids: @user.projects.ids
+        } }.merge!({
+                     status: '200',
+                     messages: ['User successfully added to projects.']
+                   }), status: :ok
       else
         render json: {
           status: '422',
@@ -56,13 +56,13 @@ class Api::V1::ProjectMembershipsController < Api::V1::RootController
 
       @project.users = @project_users.push(User.where(is_admin: true)).uniq
 
-      render json: {
-        status: '200',
-        data: {
-          project_id: @project.id,
-          user_ids: @project.users.ids
-        }, messages: ['Users successfully added to Project.']
-      }, status: :ok
+      render json: { data: {
+        project_id: @project.id,
+        user_ids: @project.users.ids
+      } }.merge!({
+                   status: '200',
+                   messages: ['Users successfully added to Project.']
+                 }), status: :ok
     else
       render json: {
         status: '422',

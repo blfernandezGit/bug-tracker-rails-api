@@ -50,7 +50,7 @@ RSpec.describe 'Users API Test', type: :request do
       end
 
       it 'contains expected user attributes' do
-        json_response_data = JSON.parse(response.body)['data']['data'][0]
+        json_response_data = JSON.parse(response.body)['data'][0]
         attributes = json_response_data['attributes']
         expect(attributes.keys).to match_array(%w[first_name last_name username email])
       end
@@ -71,7 +71,7 @@ RSpec.describe 'Users API Test', type: :request do
         end
 
         it 'contains expected user attributes' do
-          json_response_data = JSON.parse(response.body)['data']['data']
+          json_response_data = JSON.parse(response.body)['data']
           attributes = json_response_data['attributes']
           expect(attributes.keys).to match_array(%w[first_name last_name username email])
           expect(response.body).to include('projects')
@@ -244,7 +244,7 @@ RSpec.describe 'Users API Test', type: :request do
       end
 
       it 'contains expected user attributes' do
-        json_response_data = JSON.parse(response.body)['data']['data'][0]
+        json_response_data = JSON.parse(response.body)['data'][0]
         attributes = json_response_data['attributes']
         expect(attributes.keys).to match_array(%w[first_name last_name username email])
         expect(response.body).to include('projects')
@@ -270,7 +270,7 @@ RSpec.describe 'Users API Test', type: :request do
         end
 
         it 'contains expected user attributes' do
-          json_response_data = JSON.parse(response.body)['data']['data']
+          json_response_data = JSON.parse(response.body)['data']
           attributes = json_response_data['attributes']
           expect(attributes.keys).to match_array(%w[first_name last_name username email])
           expect(response.body).to include('projects')

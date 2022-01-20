@@ -4,11 +4,10 @@ class Api::V1::CommentsController < Api::V1::RootController
 
   def show
     if @comment
-      render json: {
-        status: '200',
-        data: CommentSerializer.new(@comment).serializable_hash,
-        messages: ['Comment successfully retrieved.']
-      }, status: :ok
+      render json: CommentSerializer.new(@comment).serializable_hash.merge!({
+                                                                              status: '200',
+                                                                              messages: ['Comment successfully retrieved.']
+                                                                            }), status: :ok
     else
       render json: {
         status: '422',
@@ -25,11 +24,10 @@ class Api::V1::CommentsController < Api::V1::RootController
     @comment.user_id = @user.id # Assign current user as comment author
 
     if @comment.save
-      render json: {
-        status: '200',
-        data: CommentSerializer.new(@comment).serializable_hash,
-        messages: ['Ticket successfully created.']
-      }, status: :ok
+      render json: CommentSerializer.new(@comment).serializable_hash.merge!({
+                                                                              status: '200',
+                                                                              messages: ['Ticket successfully created.']
+                                                                            }), status: :ok
     else
       render json: {
         status: '422',
@@ -43,11 +41,10 @@ class Api::V1::CommentsController < Api::V1::RootController
 
   def update
     if @comment.update(comment_params)
-      render json: {
-        status: '200',
-        data: CommentSerializer.new(@comment).serializable_hash,
-        messages: ['Ticket successfully updated.']
-      }, status: :ok
+      render json: CommentSerializer.new(@comment).serializable_hash.merge!({
+                                                                              status: '200',
+                                                                              messages: ['Ticket successfully updated.']
+                                                                            }), status: :ok
     else
       render json: {
         status: '422',
@@ -61,11 +58,10 @@ class Api::V1::CommentsController < Api::V1::RootController
 
   def destroy
     if @comment.destroy
-      render json: {
-        status: '200',
-        deletedData: CommentSerializer.new(@comment).serializable_hash,
-        messages: ['Ticket successfully deleted.']
-      }, status: :ok
+      render json: { data: { user: @comment.user } }.merge!({
+                                                              status: '200',
+                                                              messages: ['Ticket successfully deleted.']
+                                                            }), status: :ok
     else
       render json: {
         status: '422',

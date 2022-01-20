@@ -5,11 +5,10 @@ class Api::V1::ProjectsController < Api::V1::RootController
   def index
     @projects = Project.all
     if @projects.count > 0
-      render json: {
-        status: '200',
-        data: ProjectSerializer.new(@projects).serializable_hash,
-        messages: ['Projects successfully retrieved.']
-      }, status: :ok
+      render json: ProjectSerializer.new(@projects).serializable_hash.merge!({
+                                                                               status: '200',
+                                                                               messages: ['Projects successfully retrieved.']
+                                                                             }), status: :ok
     else
       render json: {
         status: '422',
@@ -23,11 +22,10 @@ class Api::V1::ProjectsController < Api::V1::RootController
 
   def show
     if @project
-      render json: {
-        status: '200',
-        data: ProjectSerializer.new(@project).serializable_hash,
-        messages: ['Project successfully retrieved.']
-      }, status: :ok
+      render json: ProjectSerializer.new(@project).serializable_hash.merge!({
+                                                                              status: '200',
+                                                                              messages: ['Project successfully retrieved.']
+                                                                            }), status: :ok
     else
       render json: {
         status: '422',
@@ -49,11 +47,10 @@ class Api::V1::ProjectsController < Api::V1::RootController
       @admins.each do |admin|
         admin.projects.push(@project)
       end
-      render json: {
-        status: '200',
-        data: ProjectSerializer.new(@project).serializable_hash,
-        messages: ['Project successfully created.']
-      }, status: :ok
+      render json: ProjectSerializer.new(@project).serializable_hash.merge!({
+                                                                              status: '200',
+                                                                              messages: ['Project successfully created.']
+                                                                            }), status: :ok
     else
       render json: {
         status: '422',
@@ -70,11 +67,10 @@ class Api::V1::ProjectsController < Api::V1::RootController
     project_params_updated[:code] = project_params_updated[:name].parameterize if project_params_updated[:name]
 
     if @project.update(project_params_updated)
-      render json: {
-        status: '200',
-        data: ProjectSerializer.new(@project).serializable_hash,
-        messages: ['Project successfully updated.']
-      }, status: :ok
+      render json: ProjectSerializer.new(@project).serializable_hash.merge!({
+                                                                              status: '200',
+                                                                              messages: ['Project successfully updated.']
+                                                                            }), status: :ok
     else
       render json: {
         status: '422',
@@ -88,11 +84,10 @@ class Api::V1::ProjectsController < Api::V1::RootController
 
   def destroy
     if @project.destroy
-      render json: {
-        status: '200',
-        deletedData: ProjectSerializer.new(@project).serializable_hash,
-        messages: ['Project successfully deleted.']
-      }, status: :ok
+      render json: { data: { code: @project.code, name: @project.name } }.merge!({
+                                                                                   status: '200',
+                                                                                   messages: ['Project successfully deleted.']
+                                                                                 }), status: :ok
     else
       render json: {
         status: '422',

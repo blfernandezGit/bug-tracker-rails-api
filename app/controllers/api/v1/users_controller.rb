@@ -5,11 +5,10 @@ class Api::V1::UsersController < Api::V1::RootController
   def index
     @users = User.all
     if @users.count > 0
-      render json: {
-        status: '200',
-        data: UserSerializer.new(@users).serializable_hash,
-        messages: ['Users successfully retrieved.']
-      }, status: :ok
+      render json: UserSerializer.new(@users).serializable_hash.merge!({
+                                                                         status: '200',
+                                                                         messages: ['Users successfully retrieved.']
+                                                                       }), status: :ok
     else
       render json: {
         status: '422',
@@ -24,11 +23,10 @@ class Api::V1::UsersController < Api::V1::RootController
   def show
     @user = User.find_by(username: params[:username])
     if @user
-      render json: {
-        status: '200',
-        data: UserSerializer.new(@user).serializable_hash,
-        messages: ['User successfully retrieved.']
-      }, status: :ok
+      render json: UserSerializer.new(@user).serializable_hash.merge!({
+                                                                        status: '200',
+                                                                        messages: ['User successfully retrieved.']
+                                                                      }), status: :ok
     else
       render json: {
         status: '422',
@@ -45,11 +43,10 @@ class Api::V1::UsersController < Api::V1::RootController
 
     if @user.save
       @user.projects = Project.all if @user.is_admin
-      render json: {
-        status: '200',
-        data: UserSerializer.new(@user).serializable_hash,
-        messages: ['User successfully created.']
-      }, status: :ok
+      render json: UserSerializer.new(@user).serializable_hash.merge!({
+                                                                        status: '200',
+                                                                        messages: ['User successfully created.']
+                                                                      }), status: :ok
     else
       render json: {
         status: '422',
@@ -63,11 +60,10 @@ class Api::V1::UsersController < Api::V1::RootController
 
   def update
     if @user.update(user_params)
-      render json: {
-        status: '200',
-        data: UserSerializer.new(@user).serializable_hash,
-        messages: ['User details successfully updated.']
-      }, status: :ok
+      render json: UserSerializer.new(@user).serializable_hash.merge!({
+                                                                        status: '200',
+                                                                        messages: ['User details successfully updated.']
+                                                                      }), status: :ok
     else
       render json: {
         status: '422',
@@ -81,11 +77,10 @@ class Api::V1::UsersController < Api::V1::RootController
 
   def destroy
     if @user.destroy
-      render json: {
-        status: '200',
-        deletedData: UserSerializer.new(@user).serializable_hash,
-        messages: ['User successfully deleted.']
-      }, status: :ok
+      render json: { data: { username: @user.username, email: @user.email } }.merge!({
+                                                                                       status: '200',
+                                                                                       messages: ['User successfully deleted.']
+                                                                                     }), status: :ok
     else
       render json: {
         status: '422',
