@@ -19,7 +19,7 @@ class Api::V1::TicketRelationsController < Api::V1::RootController
             title: 'Unprocessable Entity',
             messages: ['Unable to relate tickets.']
           ]
-        }, status: :unprocessable_entity
+        }, status: :ok
       end
     else
       render json: {
@@ -28,7 +28,7 @@ class Api::V1::TicketRelationsController < Api::V1::RootController
           title: 'Unprocessable Entity',
           messages: ['Tickets are already related.']
         ]
-      }, status: :unprocessable_entity
+      }, status: :ok
     end
   end
 

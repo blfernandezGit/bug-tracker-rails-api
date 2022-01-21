@@ -16,7 +16,7 @@ class Api::V1::ProjectsController < Api::V1::RootController
           title: 'Unprocessable Entity',
           messages: ['No projects found.']
         ]
-      }, status: :unprocessable_entity
+      }, status: :ok
     end
   end
 
@@ -33,7 +33,7 @@ class Api::V1::ProjectsController < Api::V1::RootController
           title: 'Unprocessable Entity',
           messages: ['Project does not exist.']
         ]
-      }, status: :unprocessable_entity
+      }, status: :ok
     end
   end
 

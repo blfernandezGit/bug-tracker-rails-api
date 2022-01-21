@@ -30,7 +30,7 @@ class Api::V1::ProjectMembershipsController < Api::V1::RootController
             title: 'Unprocessable Entity',
             messages: ['Not allowed.']
           ]
-        }, status: :unprocessable_entity
+        }, status: :ok
       end
     else
       render json: {
@@ -39,7 +39,7 @@ class Api::V1::ProjectMembershipsController < Api::V1::RootController
           title: 'Unprocessable Entity',
           messages: ['Not allowed.']
         ]
-      }, status: :unprocessable_entity
+      }, status: :ok
     end
   end
 
@@ -70,7 +70,7 @@ class Api::V1::ProjectMembershipsController < Api::V1::RootController
           title: 'Unprocessable Entity',
           messages: ['Not allowed.']
         ]
-      }, status: :unprocessable_entity
+      }, status: :ok
     end
   end
 

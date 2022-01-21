@@ -16,7 +16,7 @@ class Api::V1::UsersController < Api::V1::RootController
           title: 'Unprocessable Entity',
           messages: ['No users found.']
         ]
-      }, status: :unprocessable_entity
+      }, status: :ok
     end
   end
 
@@ -34,7 +34,7 @@ class Api::V1::UsersController < Api::V1::RootController
           title: 'Unprocessable Entity',
           messages: ['User does not exist.']
         ]
-      }, status: :unprocessable_entity
+      }, status: :ok
     end
   end
 
