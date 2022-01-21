@@ -6,9 +6,9 @@ class Api::V1::TicketsController < Api::V1::RootController
     @tickets = @project.tickets
     if @tickets.count > 0
       render json: TicketSerializer.new(@tickets).serializable_hash.merge!({
-                                                                                status: '200',
-                                                                                messages: ['Tickets successfully retrieved.']
-                                                                            }), status: :ok
+                                                                             status: '200',
+                                                                             messages: ['Tickets successfully retrieved.']
+                                                                           }), status: :ok
     else
       render json: {
         status: '422',

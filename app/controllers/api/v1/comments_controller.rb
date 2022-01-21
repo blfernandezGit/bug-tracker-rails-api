@@ -6,9 +6,9 @@ class Api::V1::CommentsController < Api::V1::RootController
     @comments = @ticket.comments
     if @comments.count > 0
       render json: CommentSerializer.new(@comments).serializable_hash.merge!({
-                                                                                status: '200',
-                                                                                messages: ['Comments successfully retrieved.']
-                                                                            }), status: :ok
+                                                                               status: '200',
+                                                                               messages: ['Comments successfully retrieved.']
+                                                                             }), status: :ok
     else
       render json: {
         status: '422',
