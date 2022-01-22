@@ -15,6 +15,7 @@ class Api::V1::Authorization::RegistrationsController < Devise::RegistrationsCon
       @token = @user.generate_jwt
       response.set_header('Authorization', @token)
       render json: { data: {
+        id: @user.id,
         email: @user.email,
         first_name: @user.first_name,
         last_name: @user.last_name,
