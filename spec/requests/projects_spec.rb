@@ -57,7 +57,7 @@ RSpec.describe 'Projects API Test', type: :request do
       it 'contains expected project attributes' do
         json_response_data = JSON.parse(response.body)['data'][0]
         attributes = json_response_data['attributes']
-        expect(attributes.keys).to match_array(%w[code name description is_active last_ticket_no])
+        expect(attributes.keys).to match_array(%w[code name description is_active last_ticket_no created_at updated_at])
       end
 
       it 'contains all projects' do
@@ -79,7 +79,7 @@ RSpec.describe 'Projects API Test', type: :request do
           json_response_data = JSON.parse(response.body)['data']
           attributes = json_response_data['attributes']
           expect(attributes.keys).to match_array(%w[code name description is_active
-                                                    last_ticket_no])
+                                                    last_ticket_no created_at updated_at])
           expect(response.body).to include('users')
           expect(response.body).to include('project_memberships')
           expect(response.body).to include('tickets')
@@ -212,7 +212,7 @@ RSpec.describe 'Projects API Test', type: :request do
       it 'contains expected project attributes' do
         json_response_data = JSON.parse(response.body)['data'][0]
         attributes = json_response_data['attributes']
-        expect(attributes.keys).to match_array(%w[code name description is_active last_ticket_no])
+        expect(attributes.keys).to match_array(%w[code name description is_active last_ticket_no created_at updated_at])
         expect(response.body).to include('users')
         expect(response.body).to include('project_memberships')
         expect(response.body).to include('tickets')
@@ -237,7 +237,7 @@ RSpec.describe 'Projects API Test', type: :request do
           json_response_data = JSON.parse(response.body)['data']
           attributes = json_response_data['attributes']
           expect(attributes.keys).to match_array(%w[code name description is_active
-                                                    last_ticket_no])
+                                                    last_ticket_no created_at updated_at])
           expect(response.body).to include('users')
           expect(response.body).to include('project_memberships')
           expect(response.body).to include('tickets')

@@ -52,7 +52,7 @@ RSpec.describe 'Users API Test', type: :request do
       it 'contains expected user attributes' do
         json_response_data = JSON.parse(response.body)['data'][0]
         attributes = json_response_data['attributes']
-        expect(attributes.keys).to match_array(%w[first_name last_name username email])
+        expect(attributes.keys).to match_array(%w[first_name last_name username email created_at updated_at])
       end
 
       it 'contains all users' do
@@ -73,7 +73,7 @@ RSpec.describe 'Users API Test', type: :request do
         it 'contains expected user attributes' do
           json_response_data = JSON.parse(response.body)['data']
           attributes = json_response_data['attributes']
-          expect(attributes.keys).to match_array(%w[first_name last_name username email])
+          expect(attributes.keys).to match_array(%w[first_name last_name username email created_at updated_at])
           expect(response.body).to include('projects')
           expect(response.body).to include('project_memberships')
           expect(response.body).to include('author_tickets')
@@ -246,7 +246,7 @@ RSpec.describe 'Users API Test', type: :request do
       it 'contains expected user attributes' do
         json_response_data = JSON.parse(response.body)['data'][0]
         attributes = json_response_data['attributes']
-        expect(attributes.keys).to match_array(%w[first_name last_name username email])
+        expect(attributes.keys).to match_array(%w[first_name last_name username email created_at updated_at])
         expect(response.body).to include('projects')
         expect(response.body).to include('project_memberships')
         expect(response.body).to include('author_tickets')
@@ -272,7 +272,7 @@ RSpec.describe 'Users API Test', type: :request do
         it 'contains expected user attributes' do
           json_response_data = JSON.parse(response.body)['data']
           attributes = json_response_data['attributes']
-          expect(attributes.keys).to match_array(%w[first_name last_name username email])
+          expect(attributes.keys).to match_array(%w[first_name last_name username email created_at updated_at])
           expect(response.body).to include('projects')
           expect(response.body).to include('project_memberships')
           expect(response.body).to include('author_tickets')
