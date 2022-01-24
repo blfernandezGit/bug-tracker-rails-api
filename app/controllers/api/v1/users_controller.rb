@@ -3,7 +3,7 @@ class Api::V1::UsersController < Api::V1::RootController
   before_action :set_user, only: %i[update destroy]
 
   def index
-    @users = User.all
+    @users = User.all.order(updated_at: :desc)
     if @users.count > 0
       render json: UserSerializer.new(@users).serializable_hash.merge!({
                                                                          status: '200',

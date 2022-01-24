@@ -3,7 +3,7 @@ class Api::V1::CommentsController < Api::V1::RootController
   before_action :set_comment, only: %i[show update destroy]
 
   def index
-    @comments = @ticket.comments
+    @comments = @ticket.comments.order(created_at: :asc)
     if @comments.count > 0
       render json: CommentSerializer.new(@comments).serializable_hash.merge!({
                                                                                status: '200',

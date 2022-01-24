@@ -3,7 +3,7 @@ class Api::V1::TicketsController < Api::V1::RootController
   before_action :set_ticket, only: %i[show update destroy]
 
   def get_all
-    @tickets = Ticket.all
+    @tickets = Ticket.all.order(updated_at: :desc)
     if @tickets.count > 0
       render json: TicketSerializer.new(@tickets).serializable_hash.merge!({
         status: '200',
@@ -21,7 +21,7 @@ class Api::V1::TicketsController < Api::V1::RootController
   end
 
   def index
-    @tickets = @project.tickets
+    @tickets = @project.tickets.order(updated_at: :desc)
     if @tickets.count > 0
       render json: TicketSerializer.new(@tickets).serializable_hash.merge!({
                                                                              status: '200',

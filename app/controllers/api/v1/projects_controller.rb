@@ -3,7 +3,7 @@ class Api::V1::ProjectsController < Api::V1::RootController
   before_action :set_project, only: %i[show update destroy]
 
   def index
-    @projects = Project.all
+    @projects = Project.all.order(updated_at: :desc)
     if @projects.count > 0
       render json: ProjectSerializer.new(@projects).serializable_hash.merge!({
                                                                                status: '200',
