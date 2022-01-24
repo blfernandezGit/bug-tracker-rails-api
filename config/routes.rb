@@ -17,7 +17,9 @@ Rails.application.routes.draw do
           resources :comments
         end
       end
+
       resources :users, param: :username
+      get '/tickets', to: 'tickets#get_all', as: 'get_all_tickets'
       post '/update_user_projects', to: 'project_memberships#update_user_projects', as: 'update_user_projects'
       post '/update_project_users', to: 'project_memberships#update_project_users', as: 'update_project_users'
       post '/projects/:project_code/tickets/:ticket_ticket_no/add_related_ticket', to: 'ticket_relations#add_related_ticket', as: 'add_related_ticket'
