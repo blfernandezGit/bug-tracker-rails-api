@@ -1,6 +1,7 @@
 class Ticket < ApplicationRecord
   belongs_to :project
   belongs_to :author, class_name: 'User'
+  belongs_to :assignee, class_name: 'User', optional: true
 
   # Ticket has many comments
   has_many :comments, dependent: :destroy
