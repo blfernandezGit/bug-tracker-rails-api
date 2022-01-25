@@ -44,7 +44,7 @@ RSpec.describe 'Comments API Test', type: :request do
     it 'contains expected comment attributes' do
       json_response_data = JSON.parse(response.body)['data'][0]
       attributes = json_response_data['attributes']
-      expect(attributes.keys).to match_array(%w[comment_text ticket_id user_id created_at updated_at])
+      expect(attributes.keys).to match_array(%w[comment_text ticket user created_at updated_at])
     end
 
     it 'contains all comments in a ticket' do
@@ -66,7 +66,7 @@ RSpec.describe 'Comments API Test', type: :request do
       it 'contains expected comment attributes' do
         json_response_data = JSON.parse(response.body)['data']
         attributes = json_response_data['attributes']
-        expect(attributes.keys).to match_array(%w[comment_text ticket_id user_id created_at updated_at])
+        expect(attributes.keys).to match_array(%w[comment_text ticket user created_at updated_at])
       end
 
       it 'contains specific comment' do

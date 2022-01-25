@@ -14,7 +14,7 @@ class Api::V1::CommentsController < Api::V1::RootController
         status: '422',
         errors: [
           title: 'Unprocessable Entity',
-          messages: ['No projects found.']
+          messages: ['No Comments found.']
         ]
       }, status: :ok
     end

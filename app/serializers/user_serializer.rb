@@ -1,10 +1,36 @@
 class UserSerializer
   include JSONAPI::Serializer
   attributes :first_name, :last_name, :email, :username, :created_at, :updated_at, :is_admin
-
-  has_many :project_memberships
-  has_many :projects, through: :project_memberships
-  has_many :author_tickets, class_name: 'Ticket', foreign_key: 'author_id', serializer: TicketSerializer
-  has_many :assignee_tickets, class_name: 'Ticket', foreign_key: 'assignee_id', serializer: TicketSerializer
-  has_many :comments
+  attributes :projects do |object|
+    object.projects.collect do |project|
+      {
+        code: project.code,
+        name: project.name,
+        description: project.description,
+        last_ticket_no: project.last_ticket_no,
+        created_at: project.created_at,
+        updated_at: project.updated_at
+      }
+    end
+  end
+  attributes :author_tickets do |object|
+    object.author_tickets.collect do |author_ticket|
+      {
+        ticket_no: author_ticket.ticket_no,
+        title: author_ticket.title,
+        status: author_ticket.status,
+        created_at: author_ticket.created_at
+      }
+    end
+  end
+  attributes :assignee_tickets do |object|
+    object.assignee_tickets.collect do |assignee_ticket|
+      {
+        ticket_no: assignee_ticket.ticket_no,
+        title: assignee_ticket.title,
+        status: assignee_ticket.status,
+        created_at: assignee_ticket.created_at
+      }
+    end
+  end
 end

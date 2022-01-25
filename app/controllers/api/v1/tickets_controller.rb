@@ -6,15 +6,15 @@ class Api::V1::TicketsController < Api::V1::RootController
     @tickets = Ticket.all.order(updated_at: :desc)
     if @tickets.count > 0
       render json: TicketSerializer.new(@tickets).serializable_hash.merge!({
-        status: '200',
-        messages: ['Tickets successfully retrieved.']
-      }), status: :ok
+                                                                             status: '200',
+                                                                             messages: ['Tickets successfully retrieved.']
+                                                                           }), status: :ok
     else
       render json: {
         status: '422',
         errors: [
-        title: 'Unprocessable Entity',
-        messages: ['No projects found.']
+          title: 'Unprocessable Entity',
+          messages: ['No Tickets found.']
         ]
       }, status: :ok
     end
@@ -32,7 +32,7 @@ class Api::V1::TicketsController < Api::V1::RootController
         status: '422',
         errors: [
           title: 'Unprocessable Entity',
-          messages: ['No projects found.']
+          messages: ['No Tickets found.']
         ]
       }, status: :ok
     end

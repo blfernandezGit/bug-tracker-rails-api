@@ -48,8 +48,8 @@ RSpec.describe 'Tickets API Test', type: :request do
     it 'contains expected ticket attributes' do
       json_response_data = JSON.parse(response.body)['data'][0]
       attributes = json_response_data['attributes']
-      expect(attributes.keys).to match_array(%w[title description resolution status author_id
-                                                assignee_id project_id ticket_no created_at updated_at])
+      expect(attributes.keys).to match_array(%w[title description resolution status
+                                                ticket_no created_at updated_at author comments inverse_related_tickets related_tickets project])
     end
 
     it 'contains all tickets in a project' do
@@ -71,8 +71,8 @@ RSpec.describe 'Tickets API Test', type: :request do
     it 'contains expected ticket attributes' do
       json_response_data = JSON.parse(response.body)['data'][0]
       attributes = json_response_data['attributes']
-      expect(attributes.keys).to match_array(%w[title description resolution status author_id
-                                                assignee_id project_id ticket_no created_at updated_at])
+      expect(attributes.keys).to match_array(%w[title description resolution status
+                                                ticket_no created_at updated_at author comments inverse_related_tickets related_tickets project])
     end
 
     it 'contains all tickets in a project' do
@@ -94,8 +94,8 @@ RSpec.describe 'Tickets API Test', type: :request do
       it 'contains expected ticket attributes' do
         json_response_data = JSON.parse(response.body)['data']
         attributes = json_response_data['attributes']
-        expect(attributes.keys).to match_array(%w[title description resolution status author_id
-                                                  assignee_id project_id ticket_no created_at updated_at])
+        expect(attributes.keys).to match_array(%w[title description resolution status ticket_no created_at updated_at
+                                                  author comments inverse_related_tickets related_tickets project])
       end
 
       it 'contains specific ticket' do
