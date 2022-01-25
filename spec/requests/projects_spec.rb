@@ -63,6 +63,30 @@ RSpec.describe 'Projects API Test', type: :request do
 
       it 'contains all projects' do
         expect(response.body).to include(@project.name.to_s)
+        expect(response.body).to include(@project2.name.to_s)
+      end
+    end
+
+    describe 'Get current user projects: GET /get_current_user_projects' do
+      before(:example) do
+        create(:project_membership, user: @admin, project: @project)
+        get api_v1_get_current_user_projects_url, headers: @headers
+      end
+
+      it 'renders a successful response' do
+        expect(response.status).to eq(200)
+      end
+
+      it 'contains expected project attributes' do
+        json_response_data = JSON.parse(response.body)['data'][0]
+        attributes = json_response_data['attributes']
+        expect(attributes.keys).to match_array(%w[code name description is_active last_ticket_no created_at updated_at
+                                                  tickets users])
+      end
+
+      it 'contains all projects' do
+        expect(response.body).to include(@project.name.to_s)
+        expect(response.body).to_not include(@project2.name.to_s)
       end
     end
 

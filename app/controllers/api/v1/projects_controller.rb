@@ -1,9 +1,28 @@
 class Api::V1::ProjectsController < Api::V1::RootController
   before_action :authenticate_api_v1_admin!, only: %i[create update destroy]
   before_action :set_project, only: %i[show update destroy]
+  before_action :get_user, only: %i[get_current_user_projects]
 
   def index
     @projects = Project.all.order(updated_at: :desc)
+    if @projects.count > 0
+      render json: ProjectSerializer.new(@projects).serializable_hash.merge!({
+                                                                               status: '200',
+                                                                               messages: ['Projects successfully retrieved.']
+                                                                             }), status: :ok
+    else
+      render json: {
+        status: '422',
+        errors: [
+          title: 'Unprocessable Entity',
+          messages: ['No projects found.']
+        ]
+      }, status: :ok
+    end
+  end
+
+  def get_current_user_projects
+    @projects = @user.projects.order(updated_at: :desc)
     if @projects.count > 0
       render json: ProjectSerializer.new(@projects).serializable_hash.merge!({
                                                                                status: '200',
@@ -100,6 +119,10 @@ class Api::V1::ProjectsController < Api::V1::RootController
   end
 
   private
+
+  def get_user
+    @user = User.find(current_api_v1_user.id)
+  end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_project

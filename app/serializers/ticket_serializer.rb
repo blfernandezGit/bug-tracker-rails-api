@@ -14,12 +14,13 @@ class TicketSerializer
     }
   end
   attributes :assignee do |object|
-    object.assignee ?
-    {
-      username: object.assignee.username
-    }
-    :
-    {}
+    if object.assignee
+      {
+        username: object.assignee.username
+      }
+    else
+      {}
+    end
   end
   attributes :related_tickets do |object|
     object.related_tickets.collect do |related_ticket|

@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       end
 
       resources :users, param: :username
+      get '/user_projects', to: 'projects#get_current_user_projects', as: 'get_current_user_projects'
       get '/tickets', to: 'tickets#get_all', as: 'get_all_tickets'
       post '/update_user_projects', to: 'project_memberships#update_user_projects', as: 'update_user_projects'
       post '/update_project_users', to: 'project_memberships#update_project_users', as: 'update_project_users'
