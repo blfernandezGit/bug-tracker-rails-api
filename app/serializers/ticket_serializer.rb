@@ -35,6 +35,7 @@ class TicketSerializer
     object.comments.collect do |comment|
       {
         comment_text: comment.comment_text,
+        author: comment.user.username,
         created_at: comment.created_at,
         updated_at: comment.updated_at
       }
