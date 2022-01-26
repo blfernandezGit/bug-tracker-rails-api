@@ -15,12 +15,13 @@ class ProjectSerializer
     end
   end
   attributes :tickets do |object|
-    object.tickets.includes(:author).collect do |ticket|
+    object.tickets.includes(:author).includes(:assignee).collect do |ticket|
       {
         ticket_no: ticket.ticket_no,
         title: ticket.title,
         status: ticket.status,
         author: ticket.author.username,
+        assignee: ticket.assignee ? ticket.assignee.username : '',
         created_at: ticket.created_at,
         updated_at: ticket.updated_at
       }
