@@ -1,6 +1,6 @@
 class TicketsSerializer
     include JSONAPI::Serializer
-    attributes :title, :status, :ticket_no,
+    attributes :title, :status, :description, :ticket_no,
                :created_at, :updated_at
     attributes :project do |object|
       {
