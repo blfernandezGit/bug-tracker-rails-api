@@ -41,7 +41,7 @@ class TicketSerializer
     end
   end
   attributes :comments do |object|
-    object.comments.collect do |comment|
+    object.comments.includes(:user).collect do |comment|
       {
         comment_text: comment.comment_text,
         author: comment.user.username,
