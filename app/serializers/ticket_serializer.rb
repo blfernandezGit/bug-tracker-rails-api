@@ -4,12 +4,14 @@ class TicketSerializer
              :created_at, :updated_at
   attributes :project do |object|
     {
+      id: object.project.id,
       code: object.project.code,
       name: object.project.name
     }
   end
   attributes :author do |object|
     {
+      id: object.author.id,
       username: object.author.username,
       first_name: object.author.first_name,
       last_name: object.author.last_name
@@ -18,6 +20,7 @@ class TicketSerializer
   attributes :assignee do |object|
     if object.assignee
       {
+        id: object.assignee.id,
         username: object.assignee.username
       }
     else
@@ -27,6 +30,7 @@ class TicketSerializer
   attributes :related_tickets do |object|
     object.related_tickets.collect do |related_ticket|
       {
+        id: related_ticket.id,
         ticket_no: related_ticket.ticket_no,
         title: related_ticket.title,
         status: related_ticket.status
@@ -36,6 +40,7 @@ class TicketSerializer
   attributes :inverse_related_tickets do |object|
     object.inverse_related_tickets.collect do |related_ticket|
       {
+        id: related_ticket.id,
         ticket_no: related_ticket.ticket_no,
         title: related_ticket.title,
         status: related_ticket.status

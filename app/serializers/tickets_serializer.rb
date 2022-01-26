@@ -4,6 +4,7 @@ class TicketsSerializer
                :created_at, :updated_at
     attributes :project do |object|
       {
+        id: object.project.id,
         code: object.project.code,
         name: object.project.name
       }
@@ -11,6 +12,7 @@ class TicketsSerializer
     attributes :assignee do |object|
       if object.assignee
         {
+          id: object.assignee.id,
           username: object.assignee.username
         }
       else

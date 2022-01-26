@@ -4,6 +4,7 @@ class ProjectSerializer
   attributes :users do |object|
     object.users.collect do |user|
       {
+        id: user.id,
         username: user.username,
         first_name: user.first_name,
         last_name: user.last_name,
@@ -17,6 +18,7 @@ class ProjectSerializer
   attributes :tickets do |object|
     object.tickets.includes(:author).includes(:assignee).collect do |ticket|
       {
+        id: ticket.id,
         ticket_no: ticket.ticket_no,
         title: ticket.title,
         status: ticket.status,
