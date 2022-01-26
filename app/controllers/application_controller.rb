@@ -18,6 +18,18 @@ class ApplicationController < ActionController::API
     @current_user ||= super || User.find(@current_user_id)
   end
 
+  def authenticate_api_v2_admin!(_options = {})
+    admin_unauthorized unless signed_in? && current_api_v2_user.is_admin
+  end
+
+  def authenticate_api_v2_user!(_options = {})
+    unauthorized unless signed_in?
+  end
+
+  def current_api_v2_user
+    @current_user ||= super || User.find(@current_user_id)
+  end
+
   def unauthorized
     render json: {
       status: '401',
