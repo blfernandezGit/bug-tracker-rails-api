@@ -1,6 +1,6 @@
 class ProjectSerializer
   include JSONAPI::Serializer
-  attributes :name, :description, :code, :is_active, :last_ticket_no, :created_at, :updated_at, :users
+  attributes :name, :description, :code, :is_active, :last_ticket_no, :created_at, :updated_at
   attributes :users do |object|
     object.users.collect do |user|
       {
