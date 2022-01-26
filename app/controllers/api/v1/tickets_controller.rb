@@ -5,7 +5,7 @@ class Api::V1::TicketsController < Api::V1::RootController
   def get_all
     @tickets = Ticket.all.order(updated_at: :desc)
     if @tickets.count > 0
-      render json: TicketSerializer.new(@tickets).serializable_hash.merge!({
+      render json: TicketsSerializer.new(@tickets).serializable_hash.merge!({
                                                                              status: '200',
                                                                              messages: ['Tickets successfully retrieved.']
                                                                            }), status: :ok
@@ -23,7 +23,7 @@ class Api::V1::TicketsController < Api::V1::RootController
   def index
     @tickets = @project.tickets.order(updated_at: :desc)
     if @tickets.count > 0
-      render json: TicketSerializer.new(@tickets).serializable_hash.merge!({
+      render json: TicketsSerializer.new(@tickets).serializable_hash.merge!({
                                                                              status: '200',
                                                                              messages: ['Tickets successfully retrieved.']
                                                                            }), status: :ok
