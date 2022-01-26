@@ -10,7 +10,9 @@ class TicketSerializer
   end
   attributes :author do |object|
     {
-      username: object.author.username
+      username: object.author.username,
+      first_name: object.author.first_name,
+      last_name: object.author.last_name
     }
   end
   attributes :assignee do |object|
@@ -44,7 +46,11 @@ class TicketSerializer
     object.comments.includes(:user).collect do |comment|
       {
         comment_text: comment.comment_text,
-        author: comment.user.username,
+        author: {
+          username: comment.user.username,
+          first_name: comment.user.first_name,
+          last_name: comment.user.last_name
+        },
         created_at: comment.created_at,
         updated_at: comment.updated_at
       }
