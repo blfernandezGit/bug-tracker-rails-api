@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       }
       resources :projects, param: :code do#use code-slug as primary parameter instead of id for projects routing
         resources :tickets, param: :ticket_no do
+          resources :photos
           resources :comments
         end
       end
