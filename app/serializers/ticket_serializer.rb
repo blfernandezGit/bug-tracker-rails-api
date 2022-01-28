@@ -68,6 +68,8 @@ class TicketSerializer
       {
         url: Rails.application.routes.url_helpers.rails_blob_url(object.image)
       }
+    else
+      {}
     end
   end
 end
