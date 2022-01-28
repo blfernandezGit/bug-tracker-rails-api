@@ -1,5 +1,6 @@
 class TicketSerializer
   include JSONAPI::Serializer
+  include Rails.application.routes.url_helpers
   attributes :title, :description, :resolution, :status, :ticket_no,
              :created_at, :updated_at
   attributes :project do |object|
@@ -59,6 +60,13 @@ class TicketSerializer
         },
         created_at: comment.created_at,
         updated_at: comment.updated_at
+      }
+    end
+  end
+  attributes :image do |object|
+    if object.image.attached?
+      {
+        url: Rails.application.routes.url_helpers.rails_blob_url(object.image)
       }
     end
   end
