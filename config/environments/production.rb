@@ -90,14 +90,6 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  Cloudinary.config do |config|
-    config.cloud_name = ENV['CLOUD_NAME']
-    config.api_key = ENV['CLOUD_API_KEY']
-    config.api_secret = ENV['CLOUD_API_SECRET']
-    config.secure = true
-    config.cdn_subdomain = true
-  end
-
   # Inserts middleware to perform automatic connection switching.
   # The `database_selector` hash is used to pass options to the DatabaseSelector
   # middleware. The `delay` is used to determine how long to wait after a write
