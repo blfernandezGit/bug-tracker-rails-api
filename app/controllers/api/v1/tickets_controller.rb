@@ -89,6 +89,11 @@ class Api::V1::TicketsController < Api::V1::RootController
   def update
     if @ticket.update(ticket_params)
       @ticket.image.attach(image_params[:image]) if image_params[:image]
+      if image_params[:image]
+        @ticket.image.attach(image_params[:image]) 
+      elsif image_params[:delete_image]
+        @ticket.image.destroy
+      end
       render json: TicketSerializer.new(@ticket).serializable_hash.merge!({
                                                                             status: '200',
                                                                             messages: ['Ticket successfully updated.']
@@ -142,6 +147,6 @@ class Api::V1::TicketsController < Api::V1::RootController
   end
 
   def image_params
-    params.permit(:image)
+    params.permit(:image, :delete_image)
   end
 end
