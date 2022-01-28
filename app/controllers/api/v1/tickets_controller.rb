@@ -56,7 +56,10 @@ class Api::V1::TicketsController < Api::V1::RootController
   end
 
   def create
+    # pry
     @ticket = @project.tickets.build(ticket_params)
+    @ticket.image.attach(image_params[:image]) if image_params[:image]
+    # pry
     @ticket.author_id = @user.id # Assign current user as ticket author
 
     # Assign ticket no.
@@ -87,6 +90,7 @@ class Api::V1::TicketsController < Api::V1::RootController
 
   def update
     if @ticket.update(ticket_params)
+      @ticket.image.attach(image_params[:image]) if image_params[:image]
       render json: TicketSerializer.new(@ticket).serializable_hash.merge!({
                                                                             status: '200',
                                                                             messages: ['Ticket successfully updated.']
@@ -136,6 +140,10 @@ class Api::V1::TicketsController < Api::V1::RootController
 
   # Only allow a list of trusted parameters through.
   def ticket_params
-    params.permit(:ticket_no, :title, :description, :resolution, :status, :assignee_id, :image)
+    params.permit(:ticket_no, :title, :description, :resolution, :status, :assignee_id)
+  end
+
+  def image_params
+    params.permit(:image)
   end
 end
