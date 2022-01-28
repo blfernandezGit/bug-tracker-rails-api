@@ -95,7 +95,7 @@ RSpec.describe 'Tickets API Test', type: :request do
         json_response_data = JSON.parse(response.body)['data']
         attributes = json_response_data['attributes']
         expect(attributes.keys).to match_array(%w[title description resolution status ticket_no created_at updated_at
-                                                  author comments inverse_related_tickets related_tickets project assignee])
+                                                  author comments inverse_related_tickets related_tickets project assignee image])
       end
 
       it 'contains specific ticket' do
