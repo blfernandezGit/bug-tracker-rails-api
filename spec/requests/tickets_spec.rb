@@ -72,7 +72,7 @@ RSpec.describe 'Tickets API Test', type: :request do
       json_response_data = JSON.parse(response.body)['data'][0]
       attributes = json_response_data['attributes']
       expect(attributes.keys).to match_array(%w[title status
-        ticket_no created_at updated_at project assignee description])
+                                                ticket_no created_at updated_at project assignee description])
     end
 
     it 'contains all tickets in a project' do

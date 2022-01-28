@@ -9,6 +9,6 @@ class CreateProjects < ActiveRecord::Migration[6.1]
       t.timestamps
     end
 
-    add_index :projects, :code,                unique: true
+    add_index :projects, :code, unique: true
   end
 end

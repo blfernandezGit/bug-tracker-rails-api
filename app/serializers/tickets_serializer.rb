@@ -1,23 +1,22 @@
 class TicketsSerializer
-    include JSONAPI::Serializer
-    attributes :title, :status, :description, :ticket_no,
-               :created_at, :updated_at
-    attributes :project do |object|
+  include JSONAPI::Serializer
+  attributes :title, :status, :description, :ticket_no,
+             :created_at, :updated_at
+  attributes :project do |object|
+    {
+      id: object.project.id,
+      code: object.project.code,
+      name: object.project.name
+    }
+  end
+  attributes :assignee do |object|
+    if object.assignee
       {
-        id: object.project.id,
-        code: object.project.code,
-        name: object.project.name
+        id: object.assignee.id,
+        username: object.assignee.username
       }
-    end
-    attributes :assignee do |object|
-      if object.assignee
-        {
-          id: object.assignee.id,
-          username: object.assignee.username
-        }
-      else
-        {}
-      end
+    else
+      {}
     end
   end
-  
+end

@@ -6,9 +6,9 @@ class Api::V1::TicketsController < Api::V1::RootController
     @tickets = Ticket.all.order(updated_at: :desc)
     if @tickets.count > 0
       render json: TicketsSerializer.new(@tickets).serializable_hash.merge!({
-                                                                             status: '200',
-                                                                             messages: ['Tickets successfully retrieved.']
-                                                                           }), status: :ok
+                                                                              status: '200',
+                                                                              messages: ['Tickets successfully retrieved.']
+                                                                            }), status: :ok
     else
       render json: {
         status: '422',
@@ -24,9 +24,9 @@ class Api::V1::TicketsController < Api::V1::RootController
     @tickets = @project.tickets.order(updated_at: :desc)
     if @tickets.count > 0
       render json: TicketsSerializer.new(@tickets).serializable_hash.merge!({
-                                                                             status: '200',
-                                                                             messages: ['Tickets successfully retrieved.']
-                                                                           }), status: :ok
+                                                                              status: '200',
+                                                                              messages: ['Tickets successfully retrieved.']
+                                                                            }), status: :ok
     else
       render json: {
         status: '422',
@@ -90,7 +90,7 @@ class Api::V1::TicketsController < Api::V1::RootController
     if @ticket.update(ticket_params)
       @ticket.image.attach(image_params[:image]) if image_params[:image]
       if image_params[:image]
-        @ticket.image.attach(image_params[:image]) 
+        @ticket.image.attach(image_params[:image])
       elsif image_params[:delete_image]
         @ticket.image.destroy
       end
