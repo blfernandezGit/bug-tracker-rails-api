@@ -136,6 +136,6 @@ class Api::V1::TicketsController < Api::V1::RootController
 
   # Only allow a list of trusted parameters through.
   def ticket_params
-    params.permit(:ticket_no, :title, :description, :resolution, :status, :assignee_id)
+    params.permit(:ticket_no, :title, :description, :resolution, :status, :assignee_id, :image)
   end
 end
