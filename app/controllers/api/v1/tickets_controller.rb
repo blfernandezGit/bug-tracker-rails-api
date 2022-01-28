@@ -56,10 +56,8 @@ class Api::V1::TicketsController < Api::V1::RootController
   end
 
   def create
-    # pry
     @ticket = @project.tickets.build(ticket_params)
     @ticket.image.attach(image_params[:image]) if image_params[:image]
-    # pry
     @ticket.author_id = @user.id # Assign current user as ticket author
 
     # Assign ticket no.
