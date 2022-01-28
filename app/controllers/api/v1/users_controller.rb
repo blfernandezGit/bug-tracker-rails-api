@@ -59,7 +59,7 @@ class Api::V1::UsersController < Api::V1::RootController
   end
 
   def update
-    if @user.update(user_params)
+    if @user.username != 'suppadmin' && @user.username != 'blfernandez' && @user.update(user_params)
       render json: UserSerializer.new(@user).serializable_hash.merge!({
                                                                         status: '200',
                                                                         messages: ['User details successfully updated.']
@@ -76,7 +76,7 @@ class Api::V1::UsersController < Api::V1::RootController
   end
 
   def destroy
-    if @user.destroy
+    if @user.username != 'suppadmin' && @user.username != 'blfernandez' && @user.destroy
       render json: { data: { username: @user.username, email: @user.email } }.merge!({
                                                                                        status: '200',
                                                                                        messages: ['User successfully deleted.']

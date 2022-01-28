@@ -85,7 +85,7 @@ class Api::V1::ProjectsController < Api::V1::RootController
     project_params_updated = project_params
     project_params_updated[:code] = project_params_updated[:name].parameterize if project_params_updated[:name]
 
-    if @project.update(project_params_updated)
+    if @project.code != 'nabi-project' && @project.update(project_params_updated)
       render json: ProjectSerializer.new(@project).serializable_hash.merge!({
                                                                               status: '200',
                                                                               messages: ['Project successfully updated.']
@@ -102,7 +102,7 @@ class Api::V1::ProjectsController < Api::V1::RootController
   end
 
   def destroy
-    if @project.destroy
+    if @project.code != 'nabi-project' && @project.destroy
       render json: { data: { code: @project.code, name: @project.name } }.merge!({
                                                                                    status: '200',
                                                                                    messages: ['Project successfully deleted.']
